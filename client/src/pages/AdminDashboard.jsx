@@ -22,6 +22,7 @@ export default function AdminDashboard() {
 
   // Settings Edit
   const [networkInput, setNetworkInput] = useState('')
+  const [networkAddressInput, setNetworkAddressInput] = useState('')
   const [newPin, setNewPin] = useState('')
 
   // Admin PIN Modal
@@ -126,18 +127,25 @@ export default function AdminDashboard() {
 
   // Modifying networks requires PIN
   const addNetwork = () => {
-    if (!networkInput.trim()) return
-    const newNetworks = [...settings.cryptoNetworks, networkInput.trim()]
+    if (!networkInput.trim() || !networkAddressInput.trim()) return toast.error('Both Network Name and Address are required')
+    
+    // Check if network already exists
+    if (settings.cryptoNetworks.some(n => n.name.toLowerCase() === networkInput.trim().toLowerCase())) {
+      return toast.error('Network already exists')
+    }
+
+    const newNetworks = [...settings.cryptoNetworks, { name: networkInput.trim(), address: networkAddressInput.trim() }]
     requirePin(async (authHeaders) => {
       await axios.put('/api/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
       toast.success('Network added')
       setNetworkInput('')
+      setNetworkAddressInput('')
       fetchData()
     })
   }
 
-  const removeNetwork = (netToRemove) => {
-    const newNetworks = settings.cryptoNetworks.filter(n => n !== netToRemove)
+  const removeNetwork = (netNameToRemove) => {
+    const newNetworks = settings.cryptoNetworks.filter(n => n.name !== netNameToRemove)
     requirePin(async (authHeaders) => {
       await axios.put('/api/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
       toast.success('Network removed')
@@ -494,22 +502,32 @@ export default function AdminDashboard() {
                 <h2 style={{ fontSize: '20px' }}>Supported Crypto Networks</h2>
               </div>
               
-              <div style={{ display: 'flex', gap: '8px', marginBottom: '24px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
                 <input 
                   type="text" 
-                  placeholder="e.g. Polygon (MATIC)" 
+                  placeholder="Network Name (e.g. TRC20)" 
                   value={networkInput}
                   onChange={e => setNetworkInput(e.target.value)}
-                  style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} 
+                  style={{ padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} 
                 />
-                <button onClick={addNetwork} className="btn btn--primary">Add</button>
+                <input 
+                  type="text" 
+                  placeholder="Deposit Wallet Address" 
+                  value={networkAddressInput}
+                  onChange={e => setNetworkAddressInput(e.target.value)}
+                  style={{ padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }} 
+                />
+                <button onClick={addNetwork} className="btn btn--primary">Add Network</button>
               </div>
 
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {settings.cryptoNetworks?.map(net => (
-                  <div key={net} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <span style={{ fontWeight: 600, fontSize: '14px', color: '#334155' }}>{net}</span>
-                    <button onClick={() => removeNetwork(net)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}><XCircle size={18} /></button>
+                  <div key={net.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                      <span style={{ fontWeight: 600, fontSize: '14px', color: '#334155' }}>{net.name}</span>
+                      <span style={{ fontSize: '12px', color: '#64748b', wordBreak: 'break-all' }}>{net.address}</span>
+                    </div>
+                    <button onClick={() => removeNetwork(net.name)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', paddingLeft: '12px' }}><XCircle size={18} /></button>
                   </div>
                 ))}
               </div>

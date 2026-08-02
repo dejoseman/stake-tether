@@ -5,9 +5,6 @@ import { UserCircle, Mail, Shield, CheckCircle, XCircle, Clock, UploadCloud, Shi
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)
-  const [qrCode, setQrCode] = useState('')
-  const [twoFactorToken, setTwoFactorToken] = useState('')
-  const [twoFactorSecret, setTwoFactorSecret] = useState('')
   const [loading, setLoading] = useState(true)
   const [file, setFile] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -59,35 +56,7 @@ export default function Profile() {
     }
   }
 
-  const generate2FA = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      const res = await axios.post('/api/auth/2fa/generate', {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      setQrCode(res.data.qrCodeUrl)
-      setTwoFactorSecret(res.data.secret)
-    } catch (err) {
-      toast.error('Failed to generate 2FA')
-    }
-  }
-
-  const verify2FA = async () => {
-    try {
-      const token = localStorage.getItem('token')
-      await axios.post('/api/auth/2fa/verify', { token: twoFactorToken }, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      toast.success('2FA successfully enabled!')
-      setQrCode('')
-      setTwoFactorToken('')
-    } catch (err) {
-      toast.error('Invalid 2FA token')
-    }
-  }
-
   if (loading) return <div className="dashboard-content">Loading profile...</div>
-
   return (
     <div className="dashboard-content">
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -131,37 +100,6 @@ export default function Profile() {
             </div>
           </div>
 
-          {/* Security Card */}
-          <div style={{ flex: '1 1 300px', background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <h3 style={{ fontSize: '18px', color: '#1a1a2e', marginBottom: '16px' }}>Security</h3>
-            <p style={{ color: '#4a4a68', fontSize: '14px', marginBottom: '24px' }}>Manage your account security and two-factor authentication.</p>
-            
-            <button className="btn btn--secondary" style={{ width: '100%', marginBottom: '12px' }} onClick={() => toast.success('Password reset email sent!')}>
-              Change Password
-            </button>
-            
-            {!qrCode ? (
-              <button className="btn btn--primary" style={{ width: '100%' }} onClick={generate2FA}>
-                Enable 2FA
-              </button>
-            ) : (
-              <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center' }}>
-                <p style={{ fontSize: '14px', fontWeight: 500, marginBottom: '8px' }}>Scan this QR code with Google Authenticator</p>
-                <img src={qrCode} alt="2FA QR Code" style={{ maxWidth: '100%', borderRadius: '8px', marginBottom: '12px' }} />
-                <p style={{ fontSize: '12px', color: '#64748b', wordBreak: 'break-all', marginBottom: '12px' }}>{twoFactorSecret}</p>
-                <input 
-                  type="text" 
-                  placeholder="Enter 6-digit code" 
-                  value={twoFactorToken}
-                  onChange={(e) => setTwoFactorToken(e.target.value)}
-                  style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #cbd5e1', marginBottom: '12px' }}
-                />
-                <button className="btn btn--primary" style={{ width: '100%' }} onClick={verify2FA}>
-                  Verify & Enable
-                </button>
-              </div>
-            )}
-          </div>
         </div>
 
         {/* KYC Upload Section */}

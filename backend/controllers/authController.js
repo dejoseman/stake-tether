@@ -1,8 +1,6 @@
 const { validationResult } = require('express-validator');
 const User = require('../models/User');
 const jwt = require('jsonwebtoken');
-const speakeasy = require('speakeasy');
-const qrcode = require('qrcode');
 const crypto = require('crypto');
 
 const sendEmail = require('../utils/sendEmail');
@@ -127,54 +125,6 @@ const getUserProfile = async (req, res) => {
   }
 };
 
-// @desc    Generate 2FA QR Code
-// @route   POST /api/auth/2fa/generate
-// @access  Private
-const generate2FA = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    const secret = speakeasy.generateSecret({ name: `Tether (${user.email})` });
-    
-    user.twoFactorSecret = secret.base32;
-    await user.save();
-
-    qrcode.toDataURL(secret.otpauth_url, (err, data_url) => {
-      if (err) return res.status(500).json({ msg: 'Error generating QR code' });
-      res.json({ qrCodeUrl: data_url, secret: secret.base32 });
-    });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: 'Server Error' });
-  }
-};
-
-// @desc    Verify 2FA Token
-// @route   POST /api/auth/2fa/verify
-// @access  Private
-const verify2FA = async (req, res) => {
-  try {
-    const { token } = req.body;
-    const user = await User.findById(req.user._id);
-
-    const verified = speakeasy.totp.verify({
-      secret: user.twoFactorSecret,
-      encoding: 'base32',
-      token
-    });
-
-    if (verified) {
-      user.isTwoFactorEnabled = true;
-      await user.save();
-      res.json({ msg: '2FA Enabled Successfully' });
-    } else {
-      res.status(400).json({ msg: 'Invalid Token' });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: 'Server Error' });
-  }
-};
-
 // @desc    Get user referral stats
 // @route   GET /api/auth/referrals
 // @access  Private
@@ -201,7 +151,5 @@ module.exports = {
   registerUser,
   loginUser,
   getUserProfile,
-  generate2FA,
-  verify2FA,
   getReferralStats,
 };

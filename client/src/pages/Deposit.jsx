@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { Copy } from 'lucide-react'
 
 export default function Deposit() {
   const [amount, setAmount] = useState('')
@@ -14,7 +15,7 @@ export default function Deposit() {
         const res = await axios.get('/api/settings', { headers: { Authorization: `Bearer ${token}` } })
         if (res.data?.cryptoNetworks?.length > 0) {
           setNetworks(res.data.cryptoNetworks)
-          setNetwork(res.data.cryptoNetworks[0])
+          setNetwork(res.data.cryptoNetworks[0].name)
         }
       } catch (err) {}
     }
@@ -61,9 +62,37 @@ export default function Deposit() {
               value={network}
               onChange={(e) => setNetwork(e.target.value)}
             >
-              {networks.map(n => <option key={n} value={n}>{n}</option>)}
+              {networks.map(n => <option key={n.name} value={n.name}>{n.name}</option>)}
             </select>
           </div>
+
+          {network && (
+            <div className="form-group" style={{ marginBottom: '24px' }}>
+              <label>Deposit Address</label>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <input 
+                  type="text" 
+                  readOnly
+                  value={networks.find(n => n.name === network)?.address || ''}
+                  style={{ flex: 1, padding: '12px 16px', fontSize: '15px', borderRadius: '8px', border: '2px solid #e2e8f0', background: '#f8fafc', color: '#1a1a2e' }}
+                />
+                <button 
+                  type="button"
+                  className="btn btn--primary" 
+                  onClick={() => {
+                    const address = networks.find(n => n.name === network)?.address;
+                    if (address) {
+                      navigator.clipboard.writeText(address);
+                      toast.success('Address copied!');
+                    }
+                  }}
+                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px' }}
+                >
+                  <Copy size={16} /> Copy
+                </button>
+              </div>
+            </div>
+          )}
 
           <div className="form-group" style={{ marginBottom: '32px' }}>
             <label>Amount</label>
