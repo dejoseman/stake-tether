@@ -1,11 +1,29 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { Outlet, Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import Sidebar from './Sidebar'
 import TetherLogo from './TetherLogo'
-import { CheckCircle, LogOut } from 'lucide-react'
+import { CheckCircle, Clock, XCircle, LogOut } from 'lucide-react'
 
 export default function DashboardLayout() {
   const navigate = useNavigate()
+  const [kycStatus, setKycStatus] = useState('unverified')
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        if (!token) return
+        const res = await axios.get('/api/auth/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        setKycStatus(res.data.kycStatus)
+      } catch (err) {
+        console.error('Failed to fetch profile', err)
+      }
+    }
+    fetchUser()
+  }, [])
 
   const handleLogout = () => {
     // Clear token and redirect
@@ -40,10 +58,22 @@ export default function DashboardLayout() {
 
           {/* Header Actions */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'white', fontWeight: 600, fontSize: '14px', background: 'rgba(255,255,255,0.2)', padding: '6px 12px', borderRadius: '20px' }}>
-              <CheckCircle size={16} strokeWidth={2.5} />
-              KYC VERIFIED
-            </div>
+            {kycStatus === 'verified' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#15803d', fontWeight: 700, fontSize: '13px', background: '#dcfce7', padding: '6px 12px', borderRadius: '20px' }}>
+                <CheckCircle size={16} strokeWidth={2.5} />
+                VERIFIED
+              </div>
+            ) : kycStatus === 'pending' ? (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontWeight: 700, fontSize: '13px', background: '#fef3c7', padding: '6px 12px', borderRadius: '20px' }}>
+                <Clock size={16} strokeWidth={2.5} />
+                PENDING
+              </div>
+            ) : (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b91c1c', fontWeight: 700, fontSize: '13px', background: '#fee2e2', padding: '6px 12px', borderRadius: '20px' }}>
+                <XCircle size={16} strokeWidth={2.5} />
+                UNVERIFIED
+              </div>
+            )}
             
             <button 
               onClick={handleLogout}
