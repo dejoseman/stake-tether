@@ -1,0 +1,45 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Use Node.js 18.x
+      uses: actions/setup-node@v3
+      with:
+        node-version: 18.x
+        cache: 'npm'
+        cache-dependency-path: '**/package-lock.json'
+        
+    - name: Install Backend Dependencies
+      run: npm ci
+      
+    - name: Install Frontend Dependencies
+      working-directory: ./client
+      run: npm ci
+      
+    - name: Build Frontend
+      working-directory: ./client
+      run: npm run build
+      
+    # Note: Add actual test scripts here once tests are written
+    - name: Run Tests
+      run: npm test
+
+  # Example deployment job (requires configuration on your hosting provider)
+  # deploy:
+  #   needs: build-and-test
+  #   runs-on: ubuntu-latest
+  #   if: github.ref == 'refs/heads/main'
+  #   steps:
+  #     - name: Deploy to Production
+  #       run: echo "Deployment script goes here (e.g. AWS Elastic Beanstalk, Heroku, or DigitalOcean App Platform)"
