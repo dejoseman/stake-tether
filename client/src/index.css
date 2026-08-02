@@ -45,6 +45,7 @@
   --shadow-card: 0 2px 16px rgba(0, 0, 0, 0.5);
 }
 
+:root {
   /* Typography */
   --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 
@@ -79,6 +80,7 @@
   /* Layout */
   --max-width: 1200px;
   --navbar-height: 80px;
+}
 
 /* ==========================================
    RESET & BASE
