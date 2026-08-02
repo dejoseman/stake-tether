@@ -3,11 +3,12 @@ import { Outlet, Link, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import Sidebar from './Sidebar'
 import TetherLogo from './TetherLogo'
-import { CheckCircle, Clock, XCircle, LogOut } from 'lucide-react'
+import { CheckCircle, Clock, XCircle, LogOut, Menu } from 'lucide-react'
 
 export default function DashboardLayout() {
   const navigate = useNavigate()
   const [kycStatus, setKycStatus] = useState('unverified')
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -32,10 +33,16 @@ export default function DashboardLayout() {
   }
 
   return (
-    <div style={{ display: 'flex', minHeight: '100vh', background: '#f5f7fa' }}>
-      {/* Sidebar - fixed width */}
-      <div style={{ width: '280px', background: '#ffffff', borderRight: '1px solid #e2e8f0', display: 'flex', flexDirection: 'column' }}>
-        <Sidebar />
+    <div className="dashboard-layout">
+      {/* Mobile Overlay */}
+      <div 
+        className={`dashboard-mobile-overlay ${mobileSidebarOpen ? 'open' : ''}`}
+        onClick={() => setMobileSidebarOpen(false)}
+      ></div>
+
+      {/* Sidebar */}
+      <div className={`dashboard-sidebar-wrapper ${mobileSidebarOpen ? 'open' : ''}`}>
+        <Sidebar onLinkClick={() => setMobileSidebarOpen(false)} />
       </div>
 
       {/* Main Content Area */}
@@ -49,10 +56,18 @@ export default function DashboardLayout() {
           justifyContent: 'space-between',
           padding: '0 32px'
         }}>
-          {/* Mobile Logo (hidden on desktop) */}
-          <Link to="/" style={{ display: 'none', alignItems: 'center', gap: '12px', color: 'white', fontWeight: 800, fontSize: '24px' }}>
-            <TetherLogo color="white" size={32} />
-          </Link>
+          {/* Mobile Menu Toggle & Logo */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button 
+              className="dashboard-header-menu-btn" 
+              onClick={() => setMobileSidebarOpen(true)}
+            >
+              <Menu size={24} strokeWidth={2.5} />
+            </button>
+            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'white', fontWeight: 800, fontSize: '24px' }}>
+              <TetherLogo color="white" size={32} />
+            </Link>
+          </div>
           
           <div style={{ flex: 1 }}></div>
 

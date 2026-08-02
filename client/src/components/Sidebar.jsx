@@ -4,7 +4,7 @@ import { Home, ArrowDownCircle, ArrowUpCircle, List, ArrowRightLeft, UserCircle,
 import axios from 'axios'
 import TetherLogo from './TetherLogo'
 
-export default function Sidebar() {
+export default function Sidebar({ onLinkClick }) {
   const location = useLocation()
   const [isAdmin, setIsAdmin] = useState(false)
 
@@ -39,7 +39,7 @@ export default function Sidebar() {
   return (
     <aside className="dashboard-sidebar">
       <div className="sidebar-logo" style={{ padding: '24px' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#1a1a2e', fontWeight: 800, fontSize: '24px' }}>
+        <Link to="/" onClick={onLinkClick} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#1a1a2e', fontWeight: 800, fontSize: '24px' }}>
           <TetherLogo color="#009393" size={36} />
           tether
         </Link>
@@ -50,6 +50,7 @@ export default function Sidebar() {
           <Link 
             key={item.label} 
             to={item.to}
+            onClick={onLinkClick}
             className={`sidebar-link ${location.pathname === item.to ? 'active' : ''}`}
             style={{
               display: 'flex',
