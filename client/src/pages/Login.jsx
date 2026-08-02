@@ -43,9 +43,9 @@ export default function Login() {
             <div className="form-group">
               <label htmlFor="email">Email or Username*</label>
               <input
-                type="email"
+                type="text"
                 id="email"
-                placeholder="email@example.com"
+                placeholder="Username or Email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required

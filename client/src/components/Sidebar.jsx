@@ -39,8 +39,8 @@ export default function Sidebar() {
   return (
     <aside className="dashboard-sidebar">
       <div className="sidebar-logo" style={{ padding: '24px' }}>
-        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'white', fontWeight: 800, fontSize: '24px' }}>
-          <TetherLogo color="white" size={36} />
+        <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#1a1a2e', fontWeight: 800, fontSize: '24px' }}>
+          <TetherLogo color="#009393" size={36} />
           tether
         </Link>
       </div>
