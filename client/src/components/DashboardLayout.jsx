@@ -64,7 +64,7 @@ export default function DashboardLayout() {
             >
               <Menu size={24} strokeWidth={2.5} />
             </button>
-            <Link to="/" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'white', fontWeight: 800, fontSize: '24px' }}>
+            <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: '12px', color: 'white', fontWeight: 800, fontSize: '24px' }}>
               <TetherLogo color="white" size={32} />
             </Link>
           </div>

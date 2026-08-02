@@ -113,7 +113,7 @@ export default function DashboardHome() {
         <Link to="/transactions" style={{ color: '#009393', fontWeight: 600, fontSize: '14px' }}>View All</Link>
       </div>
       
-      <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+      <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: '#f5f7fa', borderBottom: '1px solid #e2e8f0' }}>

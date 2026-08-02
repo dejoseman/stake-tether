@@ -39,7 +39,7 @@ export default function Sidebar({ onLinkClick }) {
   return (
     <aside className="dashboard-sidebar">
       <div className="sidebar-logo" style={{ padding: '24px' }}>
-        <Link to="/" onClick={onLinkClick} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#1a1a2e', fontWeight: 800, fontSize: '24px' }}>
+        <Link to="/dashboard" onClick={onLinkClick} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#1a1a2e', fontWeight: 800, fontSize: '24px' }}>
           <TetherLogo color="#009393" size={36} />
           tether
         </Link>
