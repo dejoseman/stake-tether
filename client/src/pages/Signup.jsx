@@ -24,10 +24,9 @@ export default function Signup() {
     }
 
     try {
-      const res = await axios.post('/api/auth/register', formData)
-      localStorage.setItem('token', res.data.token)
-      toast.success('Account created successfully!')
-      navigate('/dashboard')
+      await axios.post('/api/auth/register', formData)
+      toast.success('Account created successfully! Please log in.')
+      navigate('/login')
     } catch (err) {
       toast.error(err.response?.data?.msg || 'An error occurred during registration.')
     }
