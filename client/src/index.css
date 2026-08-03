@@ -29,6 +29,7 @@
   --color-bg: #121212;
   --color-bg-white: #1e1e1e;
   --color-bg-card: #1e1e1e;
+  --color-navbar-bg: rgba(30, 30, 30, 0.95);
   --color-bg-hero: linear-gradient(135deg, #101e1e 0%, #152222 50%, #121212 100%);
   
   --color-text-primary: #f5f7fa;
@@ -152,7 +153,7 @@ ul, ol {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--color-navbar-bg, rgba(255, 255, 255, 0.95));
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--color-border-light);
   height: var(--navbar-height);
@@ -941,6 +942,7 @@ ul, ol {
 }
 
 @media (max-width: 768px) {
+  .desktop-only { display: none !important; }
   .navbar__links { display: none; }
   .navbar__hamburger { display: block; }
   .mobile-menu { display: block; }

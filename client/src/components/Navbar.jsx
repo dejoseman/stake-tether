@@ -55,8 +55,8 @@ export default function Navbar() {
             <button onClick={toggleTheme} className="btn btn--icon" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: '8px', color: 'var(--color-text-primary)' }}>
               {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
             </button>
-            <Link to="/login" className="btn btn--text btn--sm">Log In</Link>
-            <Link to="/signup" className="btn btn--primary btn--sm">Sign Up</Link>
+            <Link to="/login" className="btn btn--text btn--sm desktop-only">Log In</Link>
+            <Link to="/signup" className="btn btn--primary btn--sm desktop-only">Sign Up</Link>
             <button className="navbar__hamburger" onClick={() => setMobileOpen(true)}>
               <Menu size={24} strokeWidth={2} />
             </button>
