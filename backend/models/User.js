@@ -22,12 +22,12 @@ const userSchema = new mongoose.Schema({
   },
   country: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
   },
   tetherWalletId: {
     type: String,
-    required: true,
+    required: false,
     trim: true,
   },
   balance: {
