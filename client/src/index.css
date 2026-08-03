@@ -931,6 +931,37 @@ ul, ol {
 }
 
 /* ==========================================
+   FLOATING TELEGRAM BUTTON
+   ========================================== */
+.telegram-float {
+  position: fixed;
+  bottom: 28px;
+  left: 24px;
+  z-index: 9998;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #0088cc, #00aaee);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(0, 136, 204, 0.45);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.telegram-float:hover {
+  transform: scale(1.12);
+  box-shadow: 0 6px 24px rgba(0, 136, 204, 0.6);
+}
+
+.telegram-float:active {
+  transform: scale(0.95);
+}
+
+/* ==========================================
    RESPONSIVE
    ========================================== */
 @media (max-width: 1024px) {

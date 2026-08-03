@@ -5,6 +5,7 @@ import { Toaster } from 'react-hot-toast'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import DashboardLayout from './components/DashboardLayout'
+import TelegramFloat from './components/TelegramFloat'
 
 // Public Pages
 const Home = React.lazy(() => import('./pages/Home'))
@@ -49,6 +50,7 @@ function App() {
   return (
     <BrowserRouter>
       <Toaster position="top-right" />
+      <TelegramFloat />
       <React.Suspense fallback={<SuspenseFallback />}>
         <Routes>
           {/* Public Pages with Navbar & Footer */}
