@@ -20,17 +20,38 @@ const userSchema = new mongoose.Schema({
     required: true,
     minlength: 6,
   },
+  country: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  tetherWalletId: {
+    type: String,
+    required: true,
+    trim: true,
+  },
   balance: {
     type: Number,
     default: 0.00,
   },
   kycStatus: {
     type: String,
-    enum: ['unverified', 'pending', 'verified'],
+    enum: ['unverified', 'pending', 'verified', 'rejected'],
     default: 'unverified',
   },
   kycDocument: {
     type: String, // Path to the uploaded document
+  },
+  kycFullName: {
+    type: String,
+    trim: true,
+  },
+  kycSubmittedAt: {
+    type: Date,
+  },
+  kycRejectionNote: {
+    type: String,
+    default: '',
   },
   role: {
     type: String,

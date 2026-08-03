@@ -48,7 +48,7 @@ export default function DashboardLayout() {
       {/* Main Content Area */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {/* Header */}
-        <header style={{ 
+        <header className="dashboard-header" style={{ 
           height: '80px', 
           background: '#009393', 
           display: 'flex', 
@@ -72,36 +72,37 @@ export default function DashboardLayout() {
           <div style={{ flex: 1 }}></div>
 
           {/* Header Actions */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+          <div className="dashboard-header-actions" style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
             {kycStatus === 'verified' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#15803d', fontWeight: 700, fontSize: '13px', background: '#dcfce7', padding: '6px 12px', borderRadius: '20px' }}>
+              <div className="dashboard-kyc-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#15803d', fontWeight: 700, fontSize: '13px', background: '#dcfce7', padding: '6px 12px', borderRadius: '20px' }}>
                 <CheckCircle size={16} strokeWidth={2.5} />
-                VERIFIED
+                <span className="dashboard-kyc-text">VERIFIED</span>
               </div>
             ) : kycStatus === 'pending' ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontWeight: 700, fontSize: '13px', background: '#fef3c7', padding: '6px 12px', borderRadius: '20px' }}>
+              <div className="dashboard-kyc-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b45309', fontWeight: 700, fontSize: '13px', background: '#fef3c7', padding: '6px 12px', borderRadius: '20px' }}>
                 <Clock size={16} strokeWidth={2.5} />
-                PENDING
+                <span className="dashboard-kyc-text">PENDING</span>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b91c1c', fontWeight: 700, fontSize: '13px', background: '#fee2e2', padding: '6px 12px', borderRadius: '20px' }}>
+              <div className="dashboard-kyc-badge" style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#b91c1c', fontWeight: 700, fontSize: '13px', background: '#fee2e2', padding: '6px 12px', borderRadius: '20px' }}>
                 <XCircle size={16} strokeWidth={2.5} />
-                UNVERIFIED
+                <span className="dashboard-kyc-text">UNVERIFIED</span>
               </div>
             )}
             
             <button 
               onClick={handleLogout}
+              className="dashboard-logout-btn"
               style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', fontWeight: 600 }}
             >
-              Logout
+              <span className="dashboard-logout-text">Logout</span>
               <LogOut size={20} strokeWidth={2.5} />
             </button>
           </div>
         </header>
 
         {/* Scrollable Page Content */}
-        <main style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
+        <main className="dashboard-main" style={{ flex: 1, overflowY: 'auto', padding: '32px' }}>
           <Outlet />
         </main>
       </div>

@@ -49,12 +49,20 @@ router.post('/upload', protect, upload.single('document'), async (req, res) => {
       return res.status(404).json({ msg: 'User not found' });
     }
 
-    // Save relative path
+    // Save relative path and KYC metadata
     user.kycDocument = `/uploads/${req.file.filename}`;
     user.kycStatus = 'pending';
+    user.kycSubmittedAt = new Date();
+    user.kycRejectionNote = '';
+
+    // Save full name if provided
+    if (req.body.fullName) {
+      user.kycFullName = req.body.fullName;
+    }
+
     await user.save();
 
-    res.json({ msg: 'KYC Document uploaded successfully', user });
+    res.json({ msg: 'KYC Document uploaded successfully. It is now pending review.', user });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: error.message || 'Server Error' });

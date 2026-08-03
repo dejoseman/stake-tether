@@ -1,9 +1,33 @@
-import React, { useState } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { ArrowLeft } from 'lucide-react'
 import TetherLogo from '../components/TetherLogo'
+
+const COUNTRIES = [
+  "Afghanistan","Albania","Algeria","Andorra","Angola","Antigua and Barbuda","Argentina","Armenia","Australia","Austria",
+  "Azerbaijan","Bahamas","Bahrain","Bangladesh","Barbados","Belarus","Belgium","Belize","Benin","Bhutan",
+  "Bolivia","Bosnia and Herzegovina","Botswana","Brazil","Brunei","Bulgaria","Burkina Faso","Burundi","Cabo Verde","Cambodia",
+  "Cameroon","Canada","Central African Republic","Chad","Chile","China","Colombia","Comoros","Congo","Costa Rica",
+  "Croatia","Cuba","Cyprus","Czech Republic","Denmark","Djibouti","Dominica","Dominican Republic","Ecuador","Egypt",
+  "El Salvador","Equatorial Guinea","Eritrea","Estonia","Eswatini","Ethiopia","Fiji","Finland","France","Gabon",
+  "Gambia","Georgia","Germany","Ghana","Greece","Grenada","Guatemala","Guinea","Guinea-Bissau","Guyana",
+  "Haiti","Honduras","Hungary","Iceland","India","Indonesia","Iran","Iraq","Ireland","Israel",
+  "Italy","Jamaica","Japan","Jordan","Kazakhstan","Kenya","Kiribati","Kuwait","Kyrgyzstan","Laos",
+  "Latvia","Lebanon","Lesotho","Liberia","Libya","Liechtenstein","Lithuania","Luxembourg","Madagascar","Malawi",
+  "Malaysia","Maldives","Mali","Malta","Marshall Islands","Mauritania","Mauritius","Mexico","Micronesia","Moldova",
+  "Monaco","Mongolia","Montenegro","Morocco","Mozambique","Myanmar","Namibia","Nauru","Nepal","Netherlands",
+  "New Zealand","Nicaragua","Niger","Nigeria","North Korea","North Macedonia","Norway","Oman","Pakistan","Palau",
+  "Palestine","Panama","Papua New Guinea","Paraguay","Peru","Philippines","Poland","Portugal","Qatar","Romania",
+  "Russia","Rwanda","Saint Kitts and Nevis","Saint Lucia","Saint Vincent and the Grenadines","Samoa","San Marino",
+  "Sao Tome and Principe","Saudi Arabia","Senegal","Serbia","Seychelles","Sierra Leone","Singapore","Slovakia",
+  "Slovenia","Solomon Islands","Somalia","South Africa","South Korea","South Sudan","Spain","Sri Lanka","Sudan",
+  "Suriname","Sweden","Switzerland","Syria","Taiwan","Tajikistan","Tanzania","Thailand","Timor-Leste","Togo",
+  "Tonga","Trinidad and Tobago","Tunisia","Turkey","Turkmenistan","Tuvalu","Uganda","Ukraine",
+  "United Arab Emirates","United Kingdom","United States","Uruguay","Uzbekistan","Vanuatu","Vatican City",
+  "Venezuela","Vietnam","Yemen","Zambia","Zimbabwe"
+]
 
 export default function Signup() {
   const [searchParams] = useSearchParams()
@@ -12,9 +36,29 @@ export default function Signup() {
     email: '', 
     password: '', 
     confirmPassword: '', 
+    country: '',
+    tetherWalletId: '',
     referralCode: searchParams.get('ref') || '' 
   })
+  const [countrySearch, setCountrySearch] = useState('')
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false)
+  const countryRef = useRef(null)
   const navigate = useNavigate()
+
+  // Close country dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (countryRef.current && !countryRef.current.contains(e.target)) {
+        setShowCountryDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  const filteredCountries = COUNTRIES.filter(c => 
+    c.toLowerCase().includes(countrySearch.toLowerCase())
+  )
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -23,12 +67,20 @@ export default function Signup() {
       return toast.error('Passwords do not match.')
     }
 
+    if (!formData.country) {
+      return toast.error('Please select a country.')
+    }
+
+    if (formData.tetherWalletId.length < 20) {
+      return toast.error('Please enter a valid Tether Wallet ID (at least 20 characters).')
+    }
+
     try {
       await axios.post('/api/auth/register', formData)
       toast.success('Account created successfully! Please log in.')
       navigate('/login')
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'An error occurred during registration.')
+      toast.error(err.response?.data?.msg || err.response?.data?.errors?.[0]?.msg || 'An error occurred during registration.')
     }
   }
 
@@ -73,6 +125,59 @@ export default function Signup() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="country">Country*</label>
+              <div className="country-search-wrapper" ref={countryRef}>
+                <input
+                  type="text"
+                  id="country"
+                  placeholder="Search and select your country"
+                  value={formData.country || countrySearch}
+                  onChange={(e) => {
+                    setCountrySearch(e.target.value)
+                    setFormData({ ...formData, country: '' })
+                    setShowCountryDropdown(true)
+                  }}
+                  onFocus={() => setShowCountryDropdown(true)}
+                  required
+                  autoComplete="off"
+                />
+                {showCountryDropdown && filteredCountries.length > 0 && (
+                  <div className="country-dropdown">
+                    {filteredCountries.map(c => (
+                      <div 
+                        key={c} 
+                        className="country-option"
+                        onClick={() => {
+                          setFormData({ ...formData, country: c })
+                          setCountrySearch('')
+                          setShowCountryDropdown(false)
+                        }}
+                      >
+                        {c}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="tetherWalletId">Tether Wallet ID (USDT Address)*</label>
+              <input
+                type="text"
+                id="tetherWalletId"
+                placeholder="e.g. TXyz...abc or 0x123...def"
+                value={formData.tetherWalletId}
+                onChange={(e) => setFormData({ ...formData, tetherWalletId: e.target.value.trim() })}
+                required
+                minLength="20"
+              />
+              <p style={{ fontSize: '12px', color: '#64748b', marginTop: '4px' }}>
+                TRC20 addresses start with "T", ERC20 addresses start with "0x"
+              </p>
             </div>
 
             <div className="form-group">

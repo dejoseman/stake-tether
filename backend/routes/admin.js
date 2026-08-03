@@ -222,14 +222,14 @@ router.put('/kyc/:id/reject', protect, admin, requireAdminPin, async (req, res) 
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    user.kycStatus = 'unverified';
-    user.kycDocument = '';
+    user.kycStatus = 'rejected';
+    user.kycRejectionNote = req.body.rejectionNote || 'Your document did not meet our verification requirements.';
     await user.save();
 
     sendEmail({
       email: user.email,
       subject: 'KYC Verification Rejected',
-      message: `Hi ${user.username},\n\nUnfortunately, your Identity Verification (KYC) was rejected. Please ensure the document is clear, valid, and matches your account details, then try again.\n\nBest regards,\nThe Tether Staking Team`
+      message: `Hi ${user.username},\n\nUnfortunately, your Identity Verification (KYC) was rejected.\n\nReason: ${user.kycRejectionNote}\n\nPlease ensure the document is clear, valid, and matches your account details, then try again.\n\nBest regards,\nThe Tether Staking Team`
     });
 
     res.json({ msg: 'KYC Rejected successfully', user });

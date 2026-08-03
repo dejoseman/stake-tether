@@ -21,7 +21,7 @@ const registerUser = async (req, res) => {
     return res.status(400).json({ errors: errors.array() });
   }
 
-  const { username, email, password, referralCode } = req.body;
+  const { username, email, password, referralCode, country, tetherWalletId } = req.body;
 
   try {
     const userExists = await User.findOne({ $or: [{ email }, { username }] });
@@ -44,6 +44,8 @@ const registerUser = async (req, res) => {
       username,
       email,
       password,
+      country,
+      tetherWalletId,
       referralCode: newReferralCode,
       referredBy,
     });
@@ -116,7 +118,11 @@ const getUserProfile = async (req, res) => {
       username: user.username,
       email: user.email,
       balance: user.balance,
+      country: user.country,
+      tetherWalletId: user.tetherWalletId,
       kycStatus: user.kycStatus,
+      kycFullName: user.kycFullName,
+      kycRejectionNote: user.kycRejectionNote,
       role: user.role,
       dailyWithdrawalLimit: user.dailyWithdrawalLimit,
     });

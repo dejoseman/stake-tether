@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon } from 'lucide-react'
+import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 
 const TABS = ['Overview', 'Users', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
@@ -28,6 +28,12 @@ export default function AdminDashboard() {
   // Admin PIN Modal
   const [pinModal, setPinModal] = useState({ isOpen: false, actionFn: null })
   const [adminPin, setAdminPin] = useState('')
+
+  // KYC Management
+  const [kycFilter, setKycFilter] = useState('all')
+  const [kycSearch, setKycSearch] = useState('')
+  const [rejectModal, setRejectModal] = useState({ isOpen: false, userId: null })
+  const [rejectionNote, setRejectionNote] = useState('')
 
   const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` }
 
@@ -112,7 +118,26 @@ export default function AdminDashboard() {
     })
   }
 
-  // Settings Actions (Setup PIN doesn't require PIN itself, just auth)
+  // KYC Actions
+  const approveKyc = (userId) => {
+    requirePin(async (authHeaders) => {
+      await axios.put(`/api/admin/kyc/${userId}/approve`, {}, { headers: authHeaders })
+      toast.success('KYC Approved')
+      fetchData()
+    })
+  }
+
+  const rejectKyc = (userId, note) => {
+    requirePin(async (authHeaders) => {
+      await axios.put(`/api/admin/kyc/${userId}/reject`, { rejectionNote: note }, { headers: authHeaders })
+      toast.success('KYC Rejected')
+      setRejectModal({ isOpen: false, userId: null })
+      setRejectionNote('')
+      fetchData()
+    })
+  }
+
+  // Settings Actions
   const setupPin = async (e) => {
     e.preventDefault()
     if (newPin.length < 4) return toast.error('PIN must be at least 4 characters')
@@ -125,15 +150,11 @@ export default function AdminDashboard() {
     }
   }
 
-  // Modifying networks requires PIN
   const addNetwork = () => {
     if (!networkInput.trim() || !networkAddressInput.trim()) return toast.error('Both Network Name and Address are required')
-    
-    // Check if network already exists
     if (settings.cryptoNetworks.some(n => n.name.toLowerCase() === networkInput.trim().toLowerCase())) {
       return toast.error('Network already exists')
     }
-
     const newNetworks = [...settings.cryptoNetworks, { name: networkInput.trim(), address: networkAddressInput.trim() }]
     requirePin(async (authHeaders) => {
       await axios.put('/api/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
@@ -163,9 +184,20 @@ export default function AdminDashboard() {
   const labelStyle = { display: 'flex', alignItems: 'center', gap: '10px', color: '#64748b', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }
   const valueStyle = { fontSize: '28px', fontWeight: 700, color: '#1a1a2e' }
   const tableWrapStyle = { background: 'white', borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', overflow: 'auto' }
-  const thStyle = { padding: '14px 16px', textAlign: 'left', fontSize: '12px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700 }
-  const tdStyle = { padding: '14px 16px', borderTop: '1px solid #f1f5f9' }
+  const thStyle = { padding: '14px 16px', textAlign: 'left', fontSize: '12px', textTransform: 'uppercase', color: '#64748b', fontWeight: 700, whiteSpace: 'nowrap' }
+  const tdStyle = { padding: '14px 16px', borderTop: '1px solid #f1f5f9', whiteSpace: 'nowrap' }
   const inputStyle = { padding: '8px 12px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '14px', width: '100px' }
+
+  // KYC filtering
+  const filteredKycUsers = users.filter(u => {
+    const matchesFilter = kycFilter === 'all' || u.kycStatus === kycFilter
+    const searchLower = kycSearch.toLowerCase()
+    const matchesSearch = !kycSearch || 
+      u.username?.toLowerCase().includes(searchLower) || 
+      u.email?.toLowerCase().includes(searchLower) || 
+      u.country?.toLowerCase().includes(searchLower)
+    return matchesFilter && matchesSearch && u.kycStatus !== 'unverified'
+  })
 
   return (
     <div className="dashboard-content">
@@ -193,6 +225,27 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Rejection Note Modal */}
+      {rejectModal.isOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9998 }}>
+          <div style={{ background: 'white', padding: '32px', borderRadius: '16px', width: '90%', maxWidth: '450px' }}>
+            <h3 style={{ marginBottom: '8px', fontSize: '20px', color: '#1a1a2e' }}>Reject KYC</h3>
+            <p style={{ color: '#64748b', marginBottom: '16px', fontSize: '14px' }}>Provide a reason for rejecting this KYC application.</p>
+            <textarea
+              placeholder="e.g. Document is blurry, ID is expired, name does not match..."
+              value={rejectionNote}
+              onChange={e => setRejectionNote(e.target.value)}
+              rows={4}
+              style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '2px solid #e2e8f0', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', marginBottom: '24px' }}
+            />
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button onClick={() => { setRejectModal({ isOpen: false, userId: null }); setRejectionNote(''); }} style={{ flex: 1, padding: '12px', background: '#f1f5f9', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Cancel</button>
+              <button onClick={() => rejectKyc(rejectModal.userId, rejectionNote)} style={{ flex: 1, padding: '12px', background: '#ef4444', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 600, cursor: 'pointer' }}>Reject KYC</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
           <ShieldAlert size={28} color="#009393" />
@@ -200,11 +253,11 @@ export default function AdminDashboard() {
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', borderRadius: '12px', padding: '4px', marginBottom: '28px', flexWrap: 'wrap' }}>
+        <div className="admin-tabs" style={{ display: 'flex', gap: '4px', background: '#f1f5f9', borderRadius: '12px', padding: '4px', marginBottom: '28px' }}>
           {TABS.map(tab => (
             <button key={tab} onClick={() => setActiveTab(tab)} style={{
-              flex: 1, padding: '10px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
-              fontWeight: 600, fontSize: '14px', transition: 'all 0.2s', minWidth: '120px',
+              flex: '0 0 auto', padding: '10px 16px', borderRadius: '10px', border: 'none', cursor: 'pointer',
+              fontWeight: 600, fontSize: '14px', transition: 'all 0.2s', minWidth: '100px', whiteSpace: 'nowrap',
               background: activeTab === tab ? 'white' : 'transparent',
               color: activeTab === tab ? '#009393' : '#64748b',
               boxShadow: activeTab === tab ? '0 2px 8px rgba(0,0,0,0.08)' : 'none',
@@ -215,13 +268,13 @@ export default function AdminDashboard() {
         {/* OVERVIEW */}
         {activeTab === 'Overview' && (
           <>
-            <div style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
-              <div style={cardStyle}><div style={labelStyle}><Users size={18} /> Total Users</div><div style={valueStyle}>{users.length}</div></div>
-              <div style={cardStyle}><div style={labelStyle}><Activity size={18} /> Total Transactions</div><div style={valueStyle}>{transactions.length}</div></div>
-              <div style={cardStyle}><div style={labelStyle}><DollarSign size={18} /> Total Deposits</div><div style={valueStyle}>${totalDeposits.toFixed(2)}</div></div>
-              <div style={cardStyle}><div style={labelStyle}><DollarSign size={18} /> Total Withdrawals</div><div style={valueStyle}>${totalWithdrawals.toFixed(2)}</div></div>
-              <div style={cardStyle}><div style={labelStyle}><TrendingUp size={18} /> Active Stakes</div><div style={valueStyle}>{stakes.filter(s => s.status === 'active').length}</div></div>
-              <div style={cardStyle}><div style={labelStyle}><Lock size={18} /> Pending Withdrawals</div><div style={{...valueStyle, color: pendingWithdrawals.length > 0 ? '#ef4444' : '#1a1a2e'}}>{pendingWithdrawals.length}</div></div>
+            <div className="admin-stats-grid" style={{ display: 'flex', gap: '20px', flexWrap: 'wrap' }}>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><Users size={18} /> Total Users</div><div className="admin-stat-value" style={valueStyle}>{users.length}</div></div>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><Activity size={18} /> Total Transactions</div><div className="admin-stat-value" style={valueStyle}>{transactions.length}</div></div>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><DollarSign size={18} /> Total Deposits</div><div className="admin-stat-value" style={valueStyle}>${totalDeposits.toFixed(2)}</div></div>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><DollarSign size={18} /> Total Withdrawals</div><div className="admin-stat-value" style={valueStyle}>${totalWithdrawals.toFixed(2)}</div></div>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><TrendingUp size={18} /> Active Stakes</div><div className="admin-stat-value" style={valueStyle}>{stakes.filter(s => s.status === 'active').length}</div></div>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><Lock size={18} /> Pending Withdrawals</div><div style={{...valueStyle, color: pendingWithdrawals.length > 0 ? '#ef4444' : '#1a1a2e'}} className="admin-stat-value">{pendingWithdrawals.length}</div></div>
             </div>
             
             <div style={{ marginTop: '32px', ...cardStyle }}>
@@ -246,10 +299,12 @@ export default function AdminDashboard() {
 
         {/* USERS */}
         {activeTab === 'Users' && (
-          <div style={tableWrapStyle}>
+          <div className="responsive-table-wrap" style={tableWrapStyle}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead style={{ background: '#f8fafc' }}><tr>
                 <th style={thStyle}>User</th>
+                <th style={thStyle}>Country</th>
+                <th style={thStyle}>Wallet ID</th>
                 <th style={thStyle}>Balance</th>
                 <th style={thStyle}>Daily Limit</th>
                 <th style={thStyle}>Status</th>
@@ -264,6 +319,8 @@ export default function AdminDashboard() {
                         <div style={{ fontWeight: 600 }}>{user.username}</div>
                         <div style={{ color: '#64748b', fontSize: '12px' }}>{user.email}</div>
                       </td>
+                      <td style={{...tdStyle, color: '#475569', fontSize: '13px'}}>{user.country || '—'}</td>
+                      <td style={{...tdStyle, fontSize: '11px', color: '#64748b', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis'}}>{user.tetherWalletId || '—'}</td>
                       <td style={tdStyle}>
                         {isEditing ? (
                           <input type="number" value={editBalance} onChange={e => setEditBalance(e.target.value)} style={inputStyle} />
@@ -311,54 +368,86 @@ export default function AdminDashboard() {
         {/* KYC TAB */}
         {activeTab === 'KYC' && (
           <div>
-            <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#1a1a2e' }}>Pending KYC Applications</h2>
-            {users.filter(u => u.kycStatus === 'pending').length === 0 ? (
-              <div style={{ background: 'white', padding: '32px', borderRadius: '16px', textAlign: 'center', color: '#64748b' }}>
-                No pending KYC applications.
+            <div style={{ display: 'flex', gap: '16px', marginBottom: '24px', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* Search */}
+              <div style={{ flex: '1 1 250px', position: 'relative' }}>
+                <Search size={18} style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8' }} />
+                <input
+                  type="text"
+                  placeholder="Search by username, email, or country..."
+                  value={kycSearch}
+                  onChange={e => setKycSearch(e.target.value)}
+                  style={{ width: '100%', padding: '12px 12px 12px 42px', borderRadius: '10px', border: '2px solid #e2e8f0', fontSize: '14px', fontFamily: 'inherit' }}
+                />
+              </div>
+              {/* Filters */}
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {[{ value: 'all', label: 'All' }, { value: 'pending', label: 'Pending' }, { value: 'verified', label: 'Approved' }, { value: 'rejected', label: 'Rejected' }].map(f => (
+                  <button key={f.value} onClick={() => setKycFilter(f.value)} style={{
+                    padding: '8px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', fontWeight: 600, fontSize: '13px',
+                    background: kycFilter === f.value ? '#009393' : '#f1f5f9',
+                    color: kycFilter === f.value ? 'white' : '#64748b',
+                  }}>{f.label}</button>
+                ))}
+              </div>
+            </div>
+
+            {filteredKycUsers.length === 0 ? (
+              <div style={{ background: 'white', padding: '48px', borderRadius: '16px', textAlign: 'center', color: '#64748b' }}>
+                No KYC applications found{kycFilter !== 'all' ? ` with "${kycFilter}" status` : ''}.
               </div>
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                {users.filter(u => u.kycStatus === 'pending').map(u => (
-                  <div key={u._id} style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                      <div style={{ fontSize: '18px', fontWeight: 700, color: '#1a1a2e', marginBottom: '4px' }}>{u.username}</div>
-                      <div style={{ color: '#64748b', fontSize: '14px', marginBottom: '12px' }}>{u.email}</div>
+                {filteredKycUsers.map(u => (
+                  <div key={u._id} className="kyc-card" style={{ background: 'white', borderRadius: '16px', padding: '24px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '16px' }}>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                        <span style={{ fontSize: '18px', fontWeight: 700, color: '#1a1a2e' }}>{u.username}</span>
+                        <span style={{
+                          background: u.kycStatus === 'verified' ? '#dcfce7' : u.kycStatus === 'pending' ? '#fef3c7' : '#fee2e2',
+                          color: u.kycStatus === 'verified' ? '#15803d' : u.kycStatus === 'pending' ? '#92400e' : '#b91c1c',
+                          padding: '2px 10px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase'
+                        }}>{u.kycStatus}</span>
+                      </div>
+                      <div style={{ color: '#64748b', fontSize: '14px', marginBottom: '4px' }}>{u.email}</div>
+                      <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', fontSize: '13px', color: '#475569', marginTop: '8px' }}>
+                        {u.kycFullName && <span><strong>Name:</strong> {u.kycFullName}</span>}
+                        {u.country && <span><strong>Country:</strong> {u.country}</span>}
+                        {u.tetherWalletId && <span style={{ wordBreak: 'break-all' }}><strong>Wallet:</strong> {u.tetherWalletId.substring(0, 16)}...</span>}
+                        {u.kycSubmittedAt && <span><strong>Submitted:</strong> {new Date(u.kycSubmittedAt).toLocaleDateString()}</span>}
+                      </div>
                       
-                      {u.kycDocument ? (
-                        <a href={`http://localhost:3000${u.kycDocument}`} target="_blank" rel="noreferrer" style={{ color: '#0ea5e9', fontWeight: 600, fontSize: '14px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-                          View Uploaded Document
+                      {u.kycDocument && (
+                        <a href={u.kycDocument} target="_blank" rel="noreferrer" style={{ color: '#0ea5e9', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
+                          <Eye size={14} /> View Document
                         </a>
-                      ) : (
-                        <div style={{ color: '#ef4444', fontSize: '14px' }}>No document found</div>
+                      )}
+
+                      {u.kycStatus === 'rejected' && u.kycRejectionNote && (
+                        <div style={{ marginTop: '8px', fontSize: '13px', color: '#b91c1c', background: '#fef2f2', padding: '8px 12px', borderRadius: '8px' }}>
+                          <strong>Rejection note:</strong> {u.kycRejectionNote}
+                        </div>
                       )}
                     </div>
 
-                    <div style={{ display: 'flex', gap: '12px' }}>
-                      <button 
-                        className="btn btn--primary" 
-                        style={{ padding: '8px 16px', fontSize: '14px', background: '#15803d' }}
-                        onClick={() => requestAdminAction('Approve KYC', async (pin) => {
-                          const token = localStorage.getItem('token')
-                          const res = await axios.put(`/api/admin/kyc/${u._id}/approve`, {}, { headers: { Authorization: `Bearer ${token}`, 'x-admin-pin': pin } })
-                          setUsers(users.map(user => user._id === u._id ? { ...user, kycStatus: 'verified' } : user))
-                          toast.success(res.data.msg)
-                        })}
-                      >
-                        <CheckCircle size={16} style={{ marginRight: '6px', display: 'inline' }}/> Approve
-                      </button>
-                      <button 
-                        className="btn btn--primary" 
-                        style={{ padding: '8px 16px', fontSize: '14px', background: '#ef4444' }}
-                        onClick={() => requestAdminAction('Reject KYC', async (pin) => {
-                          const token = localStorage.getItem('token')
-                          const res = await axios.put(`/api/admin/kyc/${u._id}/reject`, {}, { headers: { Authorization: `Bearer ${token}`, 'x-admin-pin': pin } })
-                          setUsers(users.map(user => user._id === u._id ? { ...user, kycStatus: 'unverified', kycDocument: '' } : user))
-                          toast.success(res.data.msg)
-                        })}
-                      >
-                        <XCircle size={16} style={{ marginRight: '6px', display: 'inline' }}/> Reject
-                      </button>
-                    </div>
+                    {u.kycStatus === 'pending' && (
+                      <div className="kyc-card-actions" style={{ display: 'flex', gap: '8px', flexShrink: 0 }}>
+                        <button 
+                          className="btn btn--primary btn--sm" 
+                          style={{ background: '#15803d' }}
+                          onClick={() => approveKyc(u._id)}
+                        >
+                          <CheckCircle size={14} /> Approve
+                        </button>
+                        <button 
+                          className="btn btn--primary btn--sm" 
+                          style={{ background: '#ef4444' }}
+                          onClick={() => setRejectModal({ isOpen: true, userId: u._id })}
+                        >
+                          <XCircle size={14} /> Reject
+                        </button>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -368,7 +457,7 @@ export default function AdminDashboard() {
 
         {/* WITHDRAWALS */}
         {activeTab === 'Withdrawals' && (
-          <div style={tableWrapStyle}>
+          <div className="responsive-table-wrap" style={tableWrapStyle}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead style={{ background: '#f8fafc' }}><tr>
                 <th style={thStyle}>User</th><th style={thStyle}>Type</th><th style={thStyle}>Amount</th><th style={thStyle}>Network</th><th style={thStyle}>Status</th><th style={thStyle}>Actions</th>
@@ -408,7 +497,7 @@ export default function AdminDashboard() {
 
         {/* STAKES */}
         {activeTab === 'Stakes' && (
-          <div style={tableWrapStyle}>
+          <div className="responsive-table-wrap" style={tableWrapStyle}>
             {stakes.length === 0 ? (
               <div style={{ padding: '48px', textAlign: 'center', color: '#64748b' }}>No staking contracts yet.</div>
             ) : (
@@ -441,7 +530,7 @@ export default function AdminDashboard() {
 
         {/* STAKING PLANS */}
         {activeTab === 'Staking Plans' && (
-          <div style={tableWrapStyle}>
+          <div className="responsive-table-wrap" style={tableWrapStyle}>
              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead style={{ background: '#f8fafc' }}><tr>
                 <th style={thStyle}>Plan Name</th>
@@ -523,11 +612,11 @@ export default function AdminDashboard() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {settings.cryptoNetworks?.map(net => (
                   <div key={net.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
                       <span style={{ fontWeight: 600, fontSize: '14px', color: '#334155' }}>{net.name}</span>
                       <span style={{ fontSize: '12px', color: '#64748b', wordBreak: 'break-all' }}>{net.address}</span>
                     </div>
-                    <button onClick={() => removeNetwork(net.name)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', paddingLeft: '12px' }}><XCircle size={18} /></button>
+                    <button onClick={() => removeNetwork(net.name)} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer', paddingLeft: '12px', flexShrink: 0 }}><XCircle size={18} /></button>
                   </div>
                 ))}
               </div>

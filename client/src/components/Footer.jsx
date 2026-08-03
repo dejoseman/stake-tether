@@ -47,7 +47,7 @@ export default function Footer() {
       links: [
         { label: 'About Us', href: '#' },
         { label: 'Careers', href: '#' },
-        { label: 'Contact Us', href: '#' },
+        { label: 'Contact Us', href: 'https://t.me/HELEN_MARISOL', external: true },
         { label: 'Legal Terms', href: '#' },
       ],
     },
@@ -92,7 +92,7 @@ export default function Footer() {
             <a href="#" className="footer__social" aria-label="Twitter"><FaTwitter size={18} /></a>
             <a href="#" className="footer__social" aria-label="LinkedIn"><FaLinkedin size={18} /></a>
             <a href="#" className="footer__social" aria-label="YouTube"><FaYoutube size={18} /></a>
-            <a href="#" className="footer__social" aria-label="Telegram"><FaTelegram size={18} /></a>
+            <a href="https://t.me/HELEN_MARISOL" target="_blank" rel="noopener noreferrer" className="footer__social" aria-label="Telegram"><FaTelegram size={18} /></a>
             <a href="#" className="footer__social" aria-label="Facebook"><FaFacebook size={18} /></a>
             <a href="#" className="footer__social" aria-label="Instagram"><FaInstagram size={18} /></a>
           </div>

@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { UserCircle, Mail, Shield, CheckCircle, XCircle, Clock, UploadCloud, ShieldCheck, Copy, Users } from 'lucide-react'
+import { UserCircle, Mail, Shield, CheckCircle, XCircle, Clock, UploadCloud, ShieldCheck, Copy, Users, Globe, Wallet, AlertTriangle } from 'lucide-react'
 
 export default function Profile() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [file, setFile] = useState(null)
+  const [fullName, setFullName] = useState('')
   const [uploading, setUploading] = useState(false)
   const [referralStats, setReferralStats] = useState({ referralCode: '', totalReferred: 0, totalEarned: 0 })
 
@@ -33,9 +34,11 @@ export default function Profile() {
   const handleFileUpload = async (e) => {
     e.preventDefault()
     if (!file) return toast.error('Please select a file to upload')
+    if (!fullName.trim()) return toast.error('Please enter your full legal name')
 
     const formData = new FormData()
     formData.append('document', file)
+    formData.append('fullName', fullName.trim())
 
     setUploading(true)
     try {
@@ -48,6 +51,7 @@ export default function Profile() {
       })
       toast.success('Document uploaded successfully. It is now pending review.')
       setFile(null)
+      setFullName('')
       fetchProfile()
     } catch (err) {
       toast.error(err.response?.data?.msg || 'Failed to upload document')
@@ -62,12 +66,12 @@ export default function Profile() {
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '28px', color: '#1a1a2e', marginBottom: '32px' }}>Profile Settings</h1>
         
-        <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
+        <div className="profile-grid" style={{ display: 'flex', gap: '24px', flexWrap: 'wrap' }}>
           
           {/* Main Info Card */}
           <div style={{ flex: '1 1 400px', background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '32px' }}>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#009393', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: '#009393', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                 <UserCircle size={40} strokeWidth={2} />
               </div>
               <div>
@@ -78,14 +82,34 @@ export default function Profile() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
                 <Mail size={20} color="#64748b" />
-                <div>
+                <div style={{ minWidth: 0 }}>
                   <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Email Address</div>
-                  <div style={{ color: '#0f172a', fontWeight: 500 }}>{profile.email}</div>
+                  <div style={{ color: '#0f172a', fontWeight: 500, wordBreak: 'break-all' }}>{profile.email}</div>
                 </div>
               </div>
+
+              {profile.country && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
+                  <Globe size={20} color="#64748b" />
+                  <div>
+                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Country</div>
+                    <div style={{ color: '#0f172a', fontWeight: 500 }}>{profile.country}</div>
+                  </div>
+                </div>
+              )}
+
+              {profile.tetherWalletId && (
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
+                  <Wallet size={20} color="#64748b" />
+                  <div style={{ minWidth: 0 }}>
+                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tether Wallet ID</div>
+                    <div style={{ color: '#0f172a', fontWeight: 500, wordBreak: 'break-all', fontSize: '13px' }}>{profile.tetherWalletId}</div>
+                  </div>
+                </div>
+              )}
               
               <div style={{ background: '#f8fafc', padding: '16px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ background: 'white', padding: '12px', borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+                <div style={{ background: 'white', padding: '12px', borderRadius: '50%', boxShadow: '0 2px 8px rgba(0,0,0,0.05)', flexShrink: 0 }}>
                   <Shield size={24} color="#009393" />
                 </div>
                 <div style={{ flex: 1 }}>
@@ -94,21 +118,49 @@ export default function Profile() {
                     {profile.kycStatus === 'verified' && <><CheckCircle size={18} color="#15803d" /> Verified</>}
                     {profile.kycStatus === 'pending' && <><Clock size={18} color="#d97706" /> Pending Review</>}
                     {profile.kycStatus === 'unverified' && <><XCircle size={18} color="#ef4444" /> Unverified</>}
+                    {profile.kycStatus === 'rejected' && <><AlertTriangle size={18} color="#ef4444" /> Rejected</>}
                   </div>
                 </div>
               </div>
+
+              {/* Show rejection reason */}
+              {profile.kycStatus === 'rejected' && profile.kycRejectionNote && (
+                <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: '12px', padding: '16px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
+                    <AlertTriangle size={16} color="#dc2626" />
+                    <span style={{ fontWeight: 700, color: '#dc2626', fontSize: '14px' }}>Rejection Reason</span>
+                  </div>
+                  <p style={{ color: '#7f1d1d', fontSize: '14px', lineHeight: 1.6 }}>{profile.kycRejectionNote}</p>
+                </div>
+              )}
             </div>
           </div>
 
         </div>
 
-        {/* KYC Upload Section */}
-        {profile.kycStatus === 'unverified' && (
+        {/* KYC Upload Section — show for unverified OR rejected */}
+        {(profile.kycStatus === 'unverified' || profile.kycStatus === 'rejected') && (
           <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)', marginTop: '24px' }}>
             <h2 style={{ fontSize: '20px', marginBottom: '8px', color: '#1a1a2e' }}>Identity Verification (KYC)</h2>
-            <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>Please upload a clear picture of your Passport, National ID, or Driver's License to verify your account.</p>
+            <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>
+              {profile.kycStatus === 'rejected' 
+                ? 'Your previous submission was rejected. Please re-upload a clear document to try again.' 
+                : 'Please upload a clear picture of your Passport, National ID, or Driver\'s License to verify your account.'}
+            </p>
             
             <form onSubmit={handleFileUpload}>
+              <div className="form-group" style={{ marginBottom: '16px' }}>
+                <label htmlFor="kycFullName">Full Legal Name*</label>
+                <input
+                  type="text"
+                  id="kycFullName"
+                  placeholder="Enter your full name as it appears on your ID"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
+              </div>
+
               <div style={{ border: '2px dashed #cbd5e1', borderRadius: '12px', padding: '32px', textAlign: 'center', marginBottom: '24px', background: '#f8fafc', cursor: 'pointer', position: 'relative' }}>
                 <input 
                   type="file" 
@@ -130,12 +182,23 @@ export default function Profile() {
               <button 
                 type="submit" 
                 className="btn btn--primary" 
-                disabled={!file || uploading}
+                disabled={!file || !fullName.trim() || uploading}
                 style={{ width: '100%', padding: '14px' }}
               >
                 {uploading ? 'Uploading...' : 'Submit Document'}
               </button>
             </form>
+          </div>
+        )}
+
+        {/* Pending KYC notice */}
+        {profile.kycStatus === 'pending' && (
+          <div style={{ background: '#fffbeb', border: '1px solid #fde68a', borderRadius: '16px', padding: '24px', marginTop: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <Clock size={24} color="#d97706" style={{ flexShrink: 0 }} />
+            <div>
+              <h3 style={{ fontSize: '16px', color: '#92400e', marginBottom: '4px' }}>KYC Under Review</h3>
+              <p style={{ fontSize: '14px', color: '#a16207' }}>Your document has been submitted and is currently being reviewed by our team. This usually takes 1-2 business days.</p>
+            </div>
           </div>
         )}
 
@@ -150,11 +213,11 @@ export default function Profile() {
           </p>
 
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginBottom: '24px' }}>
-            <div style={{ flex: '1', background: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center' }}>
+            <div style={{ flex: '1', minWidth: '120px', background: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center' }}>
               <div style={{ color: '#64748b', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>Friends Referred</div>
               <div style={{ fontSize: '24px', fontWeight: 700, color: '#1a1a2e' }}>{referralStats.totalReferred}</div>
             </div>
-            <div style={{ flex: '1', background: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center' }}>
+            <div style={{ flex: '1', minWidth: '120px', background: '#f8fafc', padding: '16px', borderRadius: '12px', textAlign: 'center' }}>
               <div style={{ color: '#64748b', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>Total Earned</div>
               <div style={{ fontSize: '24px', fontWeight: 700, color: '#009393' }}>${referralStats.totalEarned.toFixed(2)}</div>
             </div>
@@ -167,7 +230,7 @@ export default function Profile() {
                 type="text" 
                 readOnly
                 value={`${window.location.origin}/signup?ref=${referralStats.referralCode}`}
-                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', color: '#1a1a2e' }}
+                style={{ flex: 1, padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1', background: 'white', color: '#1a1a2e', fontSize: '13px', minWidth: 0 }}
               />
               <button 
                 className="btn btn--primary" 
@@ -175,7 +238,7 @@ export default function Profile() {
                   navigator.clipboard.writeText(`${window.location.origin}/signup?ref=${referralStats.referralCode}`);
                   toast.success('Link copied to clipboard!');
                 }}
-                style={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}
               >
                 <Copy size={16} /> Copy
               </button>

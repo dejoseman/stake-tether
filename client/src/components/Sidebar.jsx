@@ -74,7 +74,7 @@ export default function Sidebar({ onLinkClick }) {
         <div style={{ background: '#1a1a2e', borderRadius: '12px', padding: '20px', color: 'white', textAlign: 'center' }}>
           <h4 style={{ marginBottom: '8px' }}>Need Help!</h4>
           <p style={{ fontSize: '13px', color: '#8888a0', marginBottom: '16px' }}>Contact our 24/7 customer support center</p>
-          <button className="btn btn--primary btn--sm" style={{ width: '100%' }}>Contact Us</button>
+          <a href="https://t.me/HELEN_MARISOL" target="_blank" rel="noopener noreferrer" className="btn btn--primary btn--sm" style={{ width: '100%', display: 'inline-flex' }}>Contact Us</a>
         </div>
       </div>
     </aside>

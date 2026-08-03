@@ -1003,6 +1003,9 @@ ul, ol {
   cursor: pointer;
 }
 
+/* ==========================================
+   DASHBOARD RESPONSIVE — TABLET (≤1024px)
+   ========================================== */
 @media (max-width: 1024px) {
   .dashboard-sidebar-wrapper {
     position: fixed;
@@ -1025,4 +1028,206 @@ ul, ol {
     align-items: center;
     justify-content: center;
   }
+
+  .dashboard-header-actions {
+    gap: 12px !important;
+  }
+}
+
+/* ==========================================
+   DASHBOARD RESPONSIVE — MOBILE (≤768px)
+   ========================================== */
+@media (max-width: 768px) {
+  .dashboard-header {
+    padding: 0 16px !important;
+    height: 64px !important;
+  }
+
+  .dashboard-main {
+    padding: 16px !important;
+  }
+
+  .dashboard-header-actions {
+    gap: 8px !important;
+  }
+
+  .dashboard-kyc-badge {
+    padding: 4px 8px !important;
+    font-size: 11px !important;
+    gap: 4px !important;
+  }
+
+  .dashboard-kyc-text {
+    display: none;
+  }
+
+  .dashboard-logout-text {
+    display: none;
+  }
+
+  .dashboard-logout-btn {
+    gap: 0 !important;
+  }
+
+  /* Forms on mobile */
+  .form-group input,
+  .form-group select {
+    font-size: 16px !important; /* Prevents iOS zoom */
+  }
+
+  /* Auth pages */
+  .auth-page__body {
+    padding: 16px !important;
+  }
+
+  .auth-card {
+    padding: 24px 20px !important;
+  }
+
+  /* Admin tabs horizontal scroll */
+  .admin-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap !important;
+    scrollbar-width: none;
+  }
+  .admin-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Admin stat cards */
+  .admin-stats-grid {
+    gap: 12px !important;
+  }
+
+  .admin-stat-card {
+    min-width: 140px !important;
+    padding: 16px !important;
+  }
+
+  .admin-stat-value {
+    font-size: 22px !important;
+  }
+
+  /* Table responsiveness */
+  .responsive-table-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 -16px;
+    padding: 0 16px;
+  }
+
+  .responsive-table-wrap table {
+    min-width: 600px;
+  }
+
+  /* KYC cards on mobile */
+  .kyc-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 16px !important;
+  }
+
+  .kyc-card-actions {
+    width: 100%;
+  }
+
+  .kyc-card-actions button {
+    flex: 1;
+  }
+
+  /* DashboardHome welcome */
+  .welcome-hero {
+    flex-direction: column !important;
+    gap: 16px !important;
+    padding: 24px !important;
+  }
+
+  .welcome-hero h1 {
+    font-size: 22px !important;
+  }
+
+  /* Profile page */
+  .profile-grid {
+    gap: 16px !important;
+  }
+}
+
+/* ==========================================
+   DASHBOARD RESPONSIVE — SMALL MOBILE (≤480px)
+   ========================================== */
+@media (max-width: 480px) {
+  .dashboard-main {
+    padding: 12px !important;
+  }
+
+  .admin-stat-card {
+    flex: 1 1 100% !important;
+  }
+
+  /* Country dropdown */
+  .country-dropdown {
+    max-height: 200px;
+  }
+}
+
+/* ==========================================
+   FORM SELECT STYLING
+   ========================================== */
+.form-group select {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 15px;
+  font-family: var(--font-family);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  transition: border-color var(--transition-fast);
+  appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 147, 147, 0.1);
+}
+
+/* ==========================================
+   COUNTRY DROPDOWN SEARCH
+   ========================================== */
+.country-search-wrapper {
+  position: relative;
+}
+
+.country-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  background: white;
+  border: 2px solid var(--color-primary);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  z-index: 100;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+.country-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  transition: background 0.15s ease;
+}
+
+.country-option:hover {
+  background: rgba(0, 147, 147, 0.08);
+  color: var(--color-primary);
 }

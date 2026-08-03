@@ -40,7 +40,7 @@ export default function DashboardHome() {
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       
       {/* Welcome Hero */}
-      <section style={{ 
+      <section className="welcome-hero" style={{ 
         background: '#ffffff', 
         borderRadius: '16px', 
         padding: '32px', 
@@ -113,7 +113,7 @@ export default function DashboardHome() {
         <Link to="/transactions" style={{ color: '#009393', fontWeight: 600, fontSize: '14px' }}>View All</Link>
       </div>
       
-      <div className="card" style={{ padding: 0, overflowX: 'auto' }}>
+      <div className="card responsive-table-wrap" style={{ padding: 0 }}>
         <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
           <thead>
             <tr style={{ background: '#f5f7fa', borderBottom: '1px solid #e2e8f0' }}>
