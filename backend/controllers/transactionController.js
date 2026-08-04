@@ -19,10 +19,14 @@ const getTransactions = async (req, res) => {
 // @route   POST /api/transactions/deposit
 // @access  Private
 const createDeposit = async (req, res) => {
-  const { amount } = req.body;
+  const { amount, network } = req.body;
 
   if (!amount || amount <= 0) {
     return res.status(400).json({ msg: 'Please provide a valid amount' });
+  }
+  
+  if (!network) {
+    return res.status(400).json({ msg: 'Please provide a valid network' });
   }
 
   try {
@@ -37,9 +41,9 @@ const createDeposit = async (req, res) => {
     const user = await User.findById(req.user._id);
     if (user) {
       sendEmail({
-        email: user.email,
-        subject: 'Deposit Request Received',
-        message: `Hi ${user.username},\n\nWe have received your deposit request for $${amount} via ${network}.\n\nYour transaction is currently pending admin approval. You will receive another email once it has been processed.\n\nBest regards,\nThe Tether Staking Team`
+        email: 'tethered.supportdesk@gmail.com',
+        subject: 'New Deposit Request Initiated',
+        message: `Hi Admin,\n\nUser ${user.username} (${user.email}) has initiated a new deposit request for $${amount} via ${network}.\n\nPlease review this in the Admin Panel once the user has completed the transfer.\n\nBest regards,\nThe Tether Staking System`
       });
     }
 

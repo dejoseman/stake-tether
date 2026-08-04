@@ -1,12 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { Copy } from 'lucide-react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 
 export default function Deposit() {
-  const [amount, setAmount] = useState('')
+  const [searchParams] = useSearchParams()
+  const initialAmount = searchParams.get('amount') || ''
+  
+  const [amount, setAmount] = useState(initialAmount)
   const [network, setNetwork] = useState('')
   const [networks, setNetworks] = useState([])
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -24,17 +29,31 @@ export default function Deposit() {
 
   const handleDeposit = async (e) => {
     e.preventDefault()
+    setIsSubmitting(true)
 
     try {
       const token = localStorage.getItem('token')
-      await axios.post('/api/transactions/deposit', 
+      const res = await axios.post('/api/transactions/deposit', 
         { amount: Number(amount), network },
         { headers: { Authorization: `Bearer ${token}` } }
       )
-      toast.success(`Deposit of ${amount} USDt initiated on ${network}.`)
-      setAmount('')
+      
+      const depositAddress = networks.find(n => n.name === network)?.address
+      
+      toast.success(`Deposit request created!`)
+      
+      navigate('/deposit-instructions', { 
+        state: { 
+          amount, 
+          network, 
+          address: depositAddress,
+          transactionId: res.data._id 
+        } 
+      })
     } catch (err) {
       toast.error(err.response?.data?.msg || 'An error occurred.')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -44,7 +63,7 @@ export default function Deposit() {
       
       <div className="card">
         <p style={{ color: '#4a4a68', marginBottom: '24px', lineHeight: 1.6 }}>
-          Select the network and amount you wish to deposit. Your USDt will be credited to your account once the transaction is verified on-chain.
+          Select the network and amount you wish to deposit. You will receive deposit instructions on the next page.
         </p>
 
         <form onSubmit={handleDeposit}>
@@ -66,34 +85,6 @@ export default function Deposit() {
             </select>
           </div>
 
-          {network && (
-            <div className="form-group" style={{ marginBottom: '24px' }}>
-              <label>Deposit Address</label>
-              <div style={{ display: 'flex', gap: '8px' }}>
-                <input 
-                  type="text" 
-                  readOnly
-                  value={networks.find(n => n.name === network)?.address || ''}
-                  style={{ flex: 1, padding: '12px 16px', fontSize: '15px', borderRadius: '8px', border: '2px solid #e2e8f0', background: '#f8fafc', color: '#1a1a2e' }}
-                />
-                <button 
-                  type="button"
-                  className="btn btn--primary" 
-                  onClick={() => {
-                    const address = networks.find(n => n.name === network)?.address;
-                    if (address) {
-                      navigator.clipboard.writeText(address);
-                      toast.success('Address copied!');
-                    }
-                  }}
-                  style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '0 16px' }}
-                >
-                  <Copy size={16} /> Copy
-                </button>
-              </div>
-            </div>
-          )}
-
           <div className="form-group" style={{ marginBottom: '32px' }}>
             <label>Amount</label>
             <div style={{ position: 'relative' }}>
@@ -111,8 +102,8 @@ export default function Deposit() {
             </div>
           </div>
 
-          <button type="submit" className="btn btn--primary" style={{ width: '100%' }}>
-            Proceed to Deposit
+          <button type="submit" className="btn btn--primary" style={{ width: '100%' }} disabled={isSubmitting}>
+            {isSubmitting ? 'Processing...' : 'Proceed to Deposit'}
           </button>
         </form>
       </div>

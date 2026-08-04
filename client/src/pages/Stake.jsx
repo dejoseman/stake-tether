@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 import { ShieldAlert, CheckCircle2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const PLANS = [
   { name: 'Basic Plan 1', min: 100, max: 499, duration: '24 hours', durationHours: 24, returnPercent: 10, color: '#38bdf8', gradient: 'linear-gradient(135deg, #0284c7, #38bdf8)', token: 'Basic' },
@@ -14,6 +15,7 @@ export default function Stake() {
   const [selectedPlan, setSelectedPlan] = useState(PLANS[0])
   const [amount, setAmount] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const navigate = useNavigate()
 
   const expectedReturn = amount ? (Number(amount) + (Number(amount) * selectedPlan.returnPercent / 100)).toFixed(2) : '0.00'
 
@@ -35,7 +37,14 @@ export default function Stake() {
       toast.success(`Successfully staked $${amount} on the ${selectedPlan.name}!`)
       setAmount('')
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Failed to purchase stake')
+      const errorMsg = err.response?.data?.msg || 'Failed to purchase stake'
+      
+      if (errorMsg === 'Insufficient balance' || errorMsg.toLowerCase().includes('insufficient balance')) {
+        toast.error('Insufficient balance. Please deposit funds first.')
+        navigate(`/deposit?amount=${amount}`)
+      } else {
+        toast.error(errorMsg)
+      }
     } finally {
       setIsSubmitting(false)
     }

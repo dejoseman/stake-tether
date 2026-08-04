@@ -19,6 +19,7 @@ const Signup = React.lazy(() => import('./pages/Signup'))
 // Dashboard Pages
 const DashboardHome = React.lazy(() => import('./pages/DashboardHome'))
 const Deposit = React.lazy(() => import('./pages/Deposit'))
+const DepositInstructions = React.lazy(() => import('./pages/DepositInstructions'))
 const Withdraw = React.lazy(() => import('./pages/Withdraw'))
 const Transactions = React.lazy(() => import('./pages/Transactions'))
 const Transfer = React.lazy(() => import('./pages/Transfer'))
@@ -70,6 +71,7 @@ function App() {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardHome />} />
             <Route path="deposit" element={<Deposit />} />
+            <Route path="deposit-instructions" element={<DepositInstructions />} />
             <Route path="withdraw" element={<Withdraw />} />
             <Route path="transactions" element={<Transactions />} />
             <Route path="transfer" element={<Transfer />} />

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye } from 'lucide-react'
+import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 
 const TABS = ['Overview', 'Users', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
@@ -320,7 +320,23 @@ export default function AdminDashboard() {
                         <div style={{ color: '#64748b', fontSize: '12px' }}>{user.email}</div>
                       </td>
                       <td style={{...tdStyle, color: '#475569', fontSize: '13px'}}>{user.country || '—'}</td>
-                      <td style={{...tdStyle, fontSize: '11px', color: '#64748b', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis'}}>{user.tetherWalletId || '—'}</td>
+                      <td style={{...tdStyle, fontSize: '11px', color: '#64748b'}}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <span style={{ wordBreak: 'break-all' }}>{user.tetherWalletId || '—'}</span>
+                          {user.tetherWalletId && (
+                            <button 
+                              onClick={() => {
+                                navigator.clipboard.writeText(user.tetherWalletId);
+                                toast.success('Wallet ID copied');
+                              }}
+                              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0ea5e9', padding: '4px' }}
+                              title="Copy Wallet ID"
+                            >
+                              <Copy size={14} />
+                            </button>
+                          )}
+                        </div>
+                      </td>
                       <td style={tdStyle}>
                         {isEditing ? (
                           <input type="number" value={editBalance} onChange={e => setEditBalance(e.target.value)} style={inputStyle} />
