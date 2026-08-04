@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy } from 'lucide-react'
+import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy, Mail } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 
 const TABS = ['Overview', 'Users', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
@@ -317,7 +317,25 @@ export default function AdminDashboard() {
                     <tr key={user._id}>
                       <td style={tdStyle}>
                         <div style={{ fontWeight: 600 }}>{user.username}</div>
-                        <div style={{ color: '#64748b', fontSize: '12px' }}>{user.email}</div>
+                        <a 
+                          href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(user.email)}&su=${encodeURIComponent(`Tether Staking — Account Update for ${user.username}`)}&body=${encodeURIComponent(`Hi ${user.username},\n\nThank you for being a valued member of Tether Staking.\n\n[Your message here]\n\n—\nBest regards,\nTether Staking Support Team\ntethered.supportdesk@gmail.com\nhttps://stake-tether.onrender.com`)}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title={`Email ${user.email}`}
+                          style={{ 
+                            color: '#0ea5e9', 
+                            fontSize: '12px', 
+                            textDecoration: 'none', 
+                            display: 'inline-flex', 
+                            alignItems: 'center', 
+                            gap: '4px',
+                            transition: 'color 0.2s'
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.color = '#009393'}
+                          onMouseLeave={e => e.currentTarget.style.color = '#0ea5e9'}
+                        >
+                          <Mail size={13} /> {user.email}
+                        </a>
                       </td>
                       <td style={{...tdStyle, color: '#475569', fontSize: '13px'}}>{user.country || '—'}</td>
                       <td style={{...tdStyle, fontSize: '11px', color: '#64748b'}}>
