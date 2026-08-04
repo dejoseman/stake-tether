@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy, Mail } from 'lucide-react'
+import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy, Mail, Send, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 
 const TABS = ['Overview', 'Users', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
@@ -34,6 +34,12 @@ export default function AdminDashboard() {
   const [kycSearch, setKycSearch] = useState('')
   const [rejectModal, setRejectModal] = useState({ isOpen: false, userId: null })
   const [rejectionNote, setRejectionNote] = useState('')
+
+  // Email Compose Modal
+  const [emailModal, setEmailModal] = useState({ isOpen: false, to: '', username: '' })
+  const [emailSubject, setEmailSubject] = useState('')
+  const [emailBody, setEmailBody] = useState('')
+  const [isSendingEmail, setIsSendingEmail] = useState(false)
 
   const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` }
 
@@ -246,6 +252,100 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* Email Compose Modal */}
+      {emailModal.isOpen && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, backdropFilter: 'blur(4px)' }}>
+          <div style={{ background: 'white', borderRadius: '20px', width: '90%', maxWidth: '560px', overflow: 'hidden', boxShadow: '0 20px 60px rgba(0,0,0,0.2)', animation: 'fadeIn 0.2s ease-out' }}>
+            {/* Modal Header */}
+            <div style={{ background: 'linear-gradient(135deg, #007a7a, #009393)', padding: '24px 28px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Mail size={22} color="white" />
+                <div>
+                  <div style={{ color: 'white', fontWeight: 700, fontSize: '16px' }}>Compose Email</div>
+                  <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '12px' }}>From: tethered.supportdesk@gmail.com</div>
+                </div>
+              </div>
+              <button onClick={() => { setEmailModal({ isOpen: false, to: '', username: '' }); setEmailSubject(''); setEmailBody(''); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', display: 'flex' }}>
+                <X size={18} color="white" />
+              </button>
+            </div>
+
+            {/* Modal Body */}
+            <div style={{ padding: '28px' }}>
+              {/* To Field */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>To</label>
+                <div style={{ padding: '10px 14px', background: '#f8fafc', border: '2px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', color: '#1a1a2e', fontWeight: 500 }}>
+                  {emailModal.username} &lt;{emailModal.to}&gt;
+                </div>
+              </div>
+
+              {/* Subject Field */}
+              <div style={{ marginBottom: '16px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Subject</label>
+                <input
+                  type="text"
+                  value={emailSubject}
+                  onChange={e => setEmailSubject(e.target.value)}
+                  placeholder="Email subject..."
+                  style={{ width: '100%', padding: '10px 14px', border: '2px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                  onFocus={e => e.target.style.borderColor = '#009393'}
+                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                />
+              </div>
+
+              {/* Message Body */}
+              <div style={{ marginBottom: '24px' }}>
+                <label style={{ display: 'block', fontSize: '12px', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '6px' }}>Message</label>
+                <textarea
+                  value={emailBody}
+                  onChange={e => setEmailBody(e.target.value)}
+                  placeholder={`Hi ${emailModal.username},\n\nType your message here...`}
+                  rows={8}
+                  style={{ width: '100%', padding: '14px', border: '2px solid #e2e8f0', borderRadius: '10px', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical', outline: 'none', lineHeight: 1.6, transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                  onFocus={e => e.target.style.borderColor = '#009393'}
+                  onBlur={e => e.target.style.borderColor = '#e2e8f0'}
+                />
+              </div>
+
+              {/* Email Preview Note */}
+              <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <CheckCircle size={16} color="#15803d" style={{ flexShrink: 0 }} />
+                <span style={{ fontSize: '13px', color: '#166534' }}>This email will be sent with the official Tether Staking branding, logo, and signature.</span>
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: '12px' }}>
+                <button
+                  onClick={() => { setEmailModal({ isOpen: false, to: '', username: '' }); setEmailSubject(''); setEmailBody(''); }}
+                  style={{ flex: 1, padding: '12px', background: '#f1f5f9', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: 'pointer', fontSize: '14px', color: '#475569' }}
+                >Cancel</button>
+                <button
+                  disabled={isSendingEmail || !emailSubject.trim() || !emailBody.trim()}
+                  onClick={async () => {
+                    setIsSendingEmail(true);
+                    try {
+                      await axios.post('/api/admin/send-email', { to: emailModal.to, subject: emailSubject, message: emailBody }, { headers });
+                      toast.success(`Email sent to ${emailModal.username}`);
+                      setEmailModal({ isOpen: false, to: '', username: '' });
+                      setEmailSubject('');
+                      setEmailBody('');
+                    } catch (err) {
+                      toast.error(err.response?.data?.msg || 'Failed to send email');
+                    } finally {
+                      setIsSendingEmail(false);
+                    }
+                  }}
+                  style={{ flex: 1, padding: '12px', background: (!emailSubject.trim() || !emailBody.trim()) ? '#94a3b8' : '#009393', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: (!emailSubject.trim() || !emailBody.trim()) ? 'not-allowed' : 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                >
+                  <Send size={16} /> {isSendingEmail ? 'Sending...' : 'Send Email'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '24px' }}>
           <ShieldAlert size={28} color="#009393" />
@@ -317,25 +417,24 @@ export default function AdminDashboard() {
                     <tr key={user._id}>
                       <td style={tdStyle}>
                         <div style={{ fontWeight: 600 }}>{user.username}</div>
-                        <a 
-                          href={`https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(user.email)}&su=${encodeURIComponent(`Tether Staking — Account Update for ${user.username}`)}&body=${encodeURIComponent(`Hi ${user.username},\n\nThank you for being a valued member of Tether Staking.\n\n[Your message here]\n\n—\nBest regards,\nTether Staking Support Team\ntethered.supportdesk@gmail.com\nhttps://stake-tether.onrender.com`)}`}
-                          target="_blank"
-                          rel="noreferrer"
+                        <button 
+                          onClick={() => {
+                            setEmailModal({ isOpen: true, to: user.email, username: user.username });
+                            setEmailSubject(`Tether Staking — Account Update for ${user.username}`);
+                            setEmailBody(`Hi ${user.username},\n\nThank you for being a valued member of Tether Staking.\n\n`);
+                          }}
                           title={`Email ${user.email}`}
                           style={{ 
-                            color: '#0ea5e9', 
-                            fontSize: '12px', 
-                            textDecoration: 'none', 
-                            display: 'inline-flex', 
-                            alignItems: 'center', 
-                            gap: '4px',
-                            transition: 'color 0.2s'
+                            background: 'none', border: 'none', padding: 0, cursor: 'pointer',
+                            color: '#0ea5e9', fontSize: '12px', textDecoration: 'none', 
+                            display: 'inline-flex', alignItems: 'center', gap: '4px',
+                            transition: 'color 0.2s', fontFamily: 'inherit'
                           }}
                           onMouseEnter={e => e.currentTarget.style.color = '#009393'}
                           onMouseLeave={e => e.currentTarget.style.color = '#0ea5e9'}
                         >
                           <Mail size={13} /> {user.email}
-                        </a>
+                        </button>
                       </td>
                       <td style={{...tdStyle, color: '#475569', fontSize: '13px'}}>{user.country || '—'}</td>
                       <td style={{...tdStyle, fontSize: '11px', color: '#64748b'}}>
