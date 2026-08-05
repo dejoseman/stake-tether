@@ -41,10 +41,12 @@ const settingsRoutes = require('./backend/routes/settings');
 const stakesRoutes = require('./backend/routes/stakes');
 const kycRoutes = require('./backend/routes/kyc');
 const startStakingCron = require('./backend/cron/stakingProcessor');
+const seedStakingPlans = require('./backend/seedPlans');
 
 // Start automated background tasks
 if (process.env.NODE_ENV !== 'test') {
   startStakingCron();
+  seedStakingPlans();
 }
 
 app.use('/api/auth', authRoutes);

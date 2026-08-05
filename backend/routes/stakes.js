@@ -4,12 +4,20 @@ const { protect } = require('../middleware/auth');
 const User = require('../models/User');
 const Staking = require('../models/Staking');
 
-const STAKING_PLANS = {
-  Basic: { min: 100, max: 499, durationHours: 24, returnPercent: 10 },
-  Silver: { min: 500, max: 4999, durationHours: 48, returnPercent: 20 },
-  Gold: { min: 5000, max: 9999, durationHours: 72, returnPercent: 35 },
-  Premium: { min: 10000, max: 9999999, durationHours: 120, returnPercent: 50 },
-};
+const StakingPlan = require('../models/StakingPlan');
+
+// @desc    Get all active staking plans
+// @route   GET /api/stakes/plans
+// @access  Public
+router.get('/plans', async (req, res) => {
+  try {
+    const plans = await StakingPlan.find({ isActive: true });
+    res.json(plans);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
 
 // @desc    Get logged-in user's stakes
 // @route   GET /api/stakes/my-stakes
@@ -36,7 +44,7 @@ router.post('/purchase', protect, async (req, res) => {
       return res.status(400).json({ msg: 'Invalid plan or amount' });
     }
 
-    const plan = STAKING_PLANS[planName];
+    const plan = await StakingPlan.findOne({ name: planName, isActive: true });
     if (!plan) {
       return res.status(400).json({ msg: 'Invalid staking plan selected' });
     }
@@ -74,6 +82,38 @@ router.post('/purchase', protect, async (req, res) => {
     });
 
     res.status(201).json({ msg: 'Stake purchased successfully', stake });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
+
+// @desc    Cash out a matured stake
+// @route   POST /api/stakes/:id/cashout
+// @access  Private
+router.post('/:id/cashout', protect, async (req, res) => {
+  try {
+    const stake = await Staking.findOne({ _id: req.params.id, user: req.user._id });
+    if (!stake) {
+      return res.status(404).json({ msg: 'Stake not found' });
+    }
+
+    if (stake.status !== 'matured') {
+      return res.status(400).json({ msg: 'Stake is not ready to be cashed out' });
+    }
+
+    const payoutAmount = stake.amount + stake.accruedRewards;
+    
+    // Credit user
+    const user = await User.findById(req.user._id);
+    user.balance += payoutAmount;
+    await user.save();
+
+    // Mark stake as completed
+    stake.status = 'completed';
+    await stake.save();
+
+    res.json({ msg: 'Stake cashed out successfully', payoutAmount, newBalance: user.balance });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: 'Server Error' });

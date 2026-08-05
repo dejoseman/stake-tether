@@ -1,40 +1,13 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
+import axios from 'axios'
 import { Link } from 'react-router-dom'
 import { Shield, Zap, Bot, Users, BarChart3, RefreshCw, CheckCircle2 } from 'lucide-react'
 
-const plans = [
-  {
-    name: 'Basic Plan 1',
-    range: '$100 - $499',
-    duration: '24 Hours',
-    returnPercent: '10%',
-    color: '#009393',
-    gradient: 'linear-gradient(135deg, #009393 0%, #00b4b4 100%)',
-  },
-  {
-    name: 'Silver Plan 2',
-    range: '$500 - $4,999',
-    duration: '48 Hours',
-    returnPercent: '20%',
-    color: '#6366f1',
-    gradient: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)',
-  },
-  {
-    name: 'Gold Plan 3',
-    range: '$5,000 - $9,999',
-    duration: '72 Hours',
-    returnPercent: '35%',
-    color: '#f59e0b',
-    gradient: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)',
-  },
-  {
-    name: 'Premium Plan 4',
-    range: '$10,000 - Unlimited',
-    duration: '120 Hours',
-    returnPercent: '50%',
-    color: '#ef4444',
-    gradient: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)',
-  },
+const UI_STYLES = [
+  { color: '#009393', gradient: 'linear-gradient(135deg, #009393 0%, #00b4b4 100%)' },
+  { color: '#6366f1', gradient: 'linear-gradient(135deg, #6366f1 0%, #818cf8 100%)' },
+  { color: '#f59e0b', gradient: 'linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%)' },
+  { color: '#ef4444', gradient: 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)' }
 ]
 
 const features = [
@@ -47,6 +20,29 @@ const features = [
 ]
 
 export default function StakingPlans() {
+  const [plans, setPlans] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const res = await axios.get('/api/stakes/plans')
+        const plansWithStyles = res.data.map((plan, index) => ({
+          ...plan,
+          range: `$${plan.min} - ${plan.max === 9999999 ? 'Unlimited' : '$' + plan.max.toLocaleString()}`,
+          duration: `${plan.durationHours} Hours`,
+          color: UI_STYLES[index % UI_STYLES.length].color,
+          gradient: UI_STYLES[index % UI_STYLES.length].gradient
+        }))
+        setPlans(plansWithStyles)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPlans()
+  }, [])
   return (
     <>
       {/* Hero Section */}

@@ -35,18 +35,11 @@ const startStakingCron = () => {
           await stake.save();
         }
 
-        // Check if completed
+        // Check if completed (matured)
         if (now >= stake.completesAt) {
-          const payoutAmount = stake.amount + stake.accruedRewards;
-          const user = await User.findById(stake.user);
-          if (user) {
-            user.balance += payoutAmount;
-            await user.save();
-          }
-          
-          stake.status = 'completed';
+          stake.status = 'matured';
           await stake.save();
-          console.log(`Completed stake ${stake._id} for user ${user?.username}. Paid out $${payoutAmount}`);
+          console.log(`Stake ${stake._id} has matured. Waiting for user to cash out.`);
         }
       }
     } catch (error) {

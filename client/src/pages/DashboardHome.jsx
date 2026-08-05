@@ -36,6 +36,9 @@ export default function DashboardHome() {
     fetchTransactions()
   }, [])
 
+  const totalDeposits = transactions.filter(t => t.type === 'deposit' && t.status === 'completed').reduce((sum, t) => sum + t.amount, 0)
+  const totalWithdrawals = transactions.filter(t => t.type === 'withdrawal' && t.status === 'completed').reduce((sum, t) => sum + t.amount, 0)
+
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
       
@@ -88,7 +91,7 @@ export default function DashboardHome() {
         <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p style={{ fontSize: '14px', color: '#4a4a68', fontWeight: 600, marginBottom: '8px' }}>Total Deposits</p>
-            <p style={{ fontSize: '24px', color: '#1a1a2e', fontWeight: 700 }}>$0.00</p>
+            <p style={{ fontSize: '24px', color: '#1a1a2e', fontWeight: 700 }}>${totalDeposits.toFixed(2)}</p>
           </div>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a68' }}>
             <ArrowDownCircle size={24} strokeWidth={2.5} />
@@ -98,7 +101,7 @@ export default function DashboardHome() {
         <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p style={{ fontSize: '14px', color: '#4a4a68', fontWeight: 600, marginBottom: '8px' }}>Total Withdrawals</p>
-            <p style={{ fontSize: '24px', color: '#1a1a2e', fontWeight: 700 }}>$0.00</p>
+            <p style={{ fontSize: '24px', color: '#1a1a2e', fontWeight: 700 }}>${totalWithdrawals.toFixed(2)}</p>
           </div>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a68' }}>
             <ArrowUpCircle size={24} strokeWidth={2.5} />
@@ -131,9 +134,26 @@ export default function DashboardHome() {
                 </td>
               </tr>
             ) : (
-              transactions.map(t => (
-                <tr key={t.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                  {/* Transaction rows would go here */}
+              transactions.slice(0, 5).map(t => (
+                <tr key={t._id} style={{ borderBottom: '1px solid #e2e8f0' }}>
+                  <td style={{ padding: '16px 24px', color: '#1a1a2e', fontSize: '14px' }}>
+                    {new Date(t.createdAt).toLocaleDateString()}
+                  </td>
+                  <td style={{ padding: '16px 24px', color: '#1a1a2e', fontSize: '14px', textTransform: 'capitalize' }}>
+                    {t.type}
+                  </td>
+                  <td style={{ padding: '16px 24px' }}>
+                    <span style={{
+                      background: t.status === 'completed' ? '#dcfce7' : t.status === 'pending' ? '#fef9c3' : '#fee2e2',
+                      color: t.status === 'completed' ? '#15803d' : t.status === 'pending' ? '#854d0e' : '#b91c1c',
+                      padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700,
+                    }}>
+                      {t.status}
+                    </span>
+                  </td>
+                  <td style={{ padding: '16px 24px', color: '#1a1a2e', fontSize: '15px', fontWeight: 700, textAlign: 'right' }}>
+                    ${t.amount.toFixed(2)}
+                  </td>
                 </tr>
               ))
             )}

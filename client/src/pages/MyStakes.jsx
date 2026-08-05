@@ -30,6 +30,21 @@ export default function MyStakes() {
     return () => clearInterval(interval)
   }, [])
 
+  const handleCashOut = async (stakeId) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(`/api/stakes/${stakeId}/cashout`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Stake cashed out successfully!');
+      
+      // Update UI state locally to avoid reload
+      setStakes(stakes.map(s => s._id === stakeId ? { ...s, status: 'completed' } : s));
+    } catch (err) {
+      toast.error(err.response?.data?.msg || 'Failed to cash out stake.');
+    }
+  };
+
   const formatCountdown = (dateString) => {
     const target = new Date(dateString).getTime()
     const now = new Date().getTime()
@@ -46,7 +61,7 @@ export default function MyStakes() {
 
   if (loading) return <div style={{ padding: '48px', textAlign: 'center' }}>Loading your stakes...</div>
 
-  const activeStakes = stakes.filter(s => s.status === 'active')
+  const activeStakes = stakes.filter(s => s.status === 'active' || s.status === 'matured')
   const completedStakes = stakes.filter(s => s.status === 'completed')
 
   return (
@@ -56,7 +71,7 @@ export default function MyStakes() {
         <h1 style={{ fontSize: '28px', color: '#1a1a2e' }}>My Stakes</h1>
       </div>
 
-      <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#1a1a2e' }}>Active Stakes ({activeStakes.length})</h2>
+      <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#1a1a2e' }}>Active & Matured Stakes ({activeStakes.length})</h2>
       {activeStakes.length === 0 ? (
         <div style={{ background: 'white', padding: '32px', borderRadius: '16px', textAlign: 'center', color: '#64748b', marginBottom: '48px' }}>
           You have no active stakes right now.
@@ -88,7 +103,16 @@ export default function MyStakes() {
                   <div>
                     <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600 }}>Time Remaining</div>
                     <div style={{ fontSize: '16px', fontWeight: 700, color: '#1a1a2e', fontVariantNumeric: 'tabular-nums' }}>
-                      {formatCountdown(stake.completesAt)}
+                      {stake.status === 'matured' ? (
+                        <button 
+                          onClick={() => handleCashOut(stake._id)} 
+                          style={{ background: '#009393', color: 'white', border: 'none', borderRadius: '6px', padding: '4px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
+                        >
+                          Cash Out
+                        </button>
+                      ) : (
+                        formatCountdown(stake.completesAt)
+                      )}
                     </div>
                   </div>
                 </div>
