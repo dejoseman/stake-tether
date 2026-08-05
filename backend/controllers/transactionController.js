@@ -68,10 +68,13 @@ const createDeposit = async (req, res) => {
 // @route   POST /api/transactions/withdraw
 // @access  Private
 const createWithdrawal = async (req, res) => {
-  const { amount } = req.body;
+  const { amount, address, network } = req.body;
 
   if (!amount || amount <= 0) {
     return res.status(400).json({ msg: 'Please provide a valid amount' });
+  }
+  if (!address || !network) {
+    return res.status(400).json({ msg: 'Please provide destination address and network' });
   }
 
   try {
@@ -103,6 +106,8 @@ const createWithdrawal = async (req, res) => {
       user: req.user._id,
       type: 'withdrawal',
       amount,
+      network,
+      address,
       status: 'pending',
     });
 
@@ -113,14 +118,14 @@ const createWithdrawal = async (req, res) => {
     sendEmail({
       email: user.email,
       subject: 'Withdrawal Request Received — Tether Staking',
-      message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount}.\n\nYour request is currently pending admin approval. You will receive another email once it has been processed.\n\nIf you did not initiate this request, please contact our support team immediately.`
+      message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount} to ${network} address: ${address}.\n\nYour request is currently pending admin approval. You will receive another email once it has been processed.\n\nIf you did not initiate this request, please contact our support team immediately.`
     });
 
     // Notify admin
     sendEmail({
       email: ADMIN_EMAIL,
       subject: `New Withdrawal Request — $${amount} from ${user.username}`,
-      message: `A new withdrawal request has been submitted.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Status:</strong> Pending\n\nPlease review and approve/reject this withdrawal in the Admin Panel.`
+      message: `A new withdrawal request has been submitted.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Network:</strong> ${network}\n<strong>Destination Address:</strong> ${address}\n<strong>Status:</strong> Pending\n\nPlease review and approve/reject this withdrawal in the Admin Panel.`
     });
 
     res.status(201).json(transaction);

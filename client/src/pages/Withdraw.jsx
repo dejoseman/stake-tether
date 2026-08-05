@@ -15,7 +15,7 @@ export default function Withdraw() {
         const res = await axios.get('/api/settings', { headers: { Authorization: `Bearer ${token}` } })
         if (res.data?.cryptoNetworks?.length > 0) {
           setNetworks(res.data.cryptoNetworks)
-          setNetwork(res.data.cryptoNetworks[0])
+          setNetwork(res.data.cryptoNetworks[0].name)
         }
       } catch (err) {}
     }
@@ -68,7 +68,7 @@ export default function Withdraw() {
               value={network}
               onChange={(e) => setNetwork(e.target.value)}
             >
-              {networks.map(n => <option key={n} value={n}>{n}</option>)}
+              {networks.map(n => <option key={n.name} value={n.name}>{n.name}</option>)}
             </select>
           </div>
 
