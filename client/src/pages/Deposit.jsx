@@ -29,32 +29,16 @@ export default function Deposit() {
 
   const handleDeposit = async (e) => {
     e.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const token = localStorage.getItem('token')
-      const res = await axios.post('/api/transactions/deposit', 
-        { amount: Number(amount), network },
-        { headers: { Authorization: `Bearer ${token}` } }
-      )
-      
-      const depositAddress = networks.find(n => n.name === network)?.address
-      
-      toast.success(`Deposit request created!`)
-      
-      navigate('/deposit-instructions', { 
-        state: { 
-          amount, 
-          network, 
-          address: depositAddress,
-          transactionId: res.data._id 
-        } 
-      })
-    } catch (err) {
-      toast.error(err.response?.data?.msg || 'An error occurred.')
-    } finally {
-      setIsSubmitting(false)
-    }
+    
+    const depositAddress = networks.find(n => n.name === network)?.address
+    
+    navigate('/deposit-instructions', { 
+      state: { 
+        amount, 
+        network, 
+        address: depositAddress
+      } 
+    })
   }
 
   return (
