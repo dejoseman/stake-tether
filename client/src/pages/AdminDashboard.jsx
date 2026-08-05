@@ -4,7 +4,7 @@ import toast from 'react-hot-toast'
 import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy, Mail, Send, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
 
-const TABS = ['Overview', 'Users', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
+const TABS = ['Overview', 'Users', 'Deposits', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('Overview')
@@ -182,7 +182,8 @@ export default function AdminDashboard() {
 
   if (loading) return <div className="dashboard-content" style={{ padding: '48px', textAlign: 'center' }}>Loading admin panel...</div>
 
-  const pendingWithdrawals = transactions.filter(t => t.status === 'pending')
+  const pendingDeposits = transactions.filter(t => t.type === 'deposit' && t.status === 'pending')
+  const pendingWithdrawals = transactions.filter(t => t.type === 'withdrawal' && t.status === 'pending')
   const totalDeposits = transactions.filter(t => t.type === 'deposit' && t.status === 'completed').reduce((s, t) => s + t.amount, 0)
   const totalWithdrawals = transactions.filter(t => t.type === 'withdrawal' && t.status === 'completed').reduce((s, t) => s + t.amount, 0)
 
@@ -374,6 +375,7 @@ export default function AdminDashboard() {
               <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><DollarSign size={18} /> Total Deposits</div><div className="admin-stat-value" style={valueStyle}>${totalDeposits.toFixed(2)}</div></div>
               <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><DollarSign size={18} /> Total Withdrawals</div><div className="admin-stat-value" style={valueStyle}>${totalWithdrawals.toFixed(2)}</div></div>
               <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><TrendingUp size={18} /> Active Stakes</div><div className="admin-stat-value" style={valueStyle}>{stakes.filter(s => s.status === 'active').length}</div></div>
+              <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><Lock size={18} /> Pending Deposits</div><div style={{...valueStyle, color: pendingDeposits.length > 0 ? '#0ea5e9' : '#1a1a2e'}} className="admin-stat-value">{pendingDeposits.length}</div></div>
               <div className="admin-stat-card" style={cardStyle}><div style={labelStyle}><Lock size={18} /> Pending Withdrawals</div><div style={{...valueStyle, color: pendingWithdrawals.length > 0 ? '#ef4444' : '#1a1a2e'}} className="admin-stat-value">{pendingWithdrawals.length}</div></div>
             </div>
             
@@ -588,18 +590,56 @@ export default function AdminDashboard() {
           </div>
         )}
 
+        {/* DEPOSITS */}
+        {activeTab === 'Deposits' && (
+          <div className="responsive-table-wrap" style={tableWrapStyle}>
+            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <thead style={{ background: '#f8fafc' }}><tr>
+                <th style={thStyle}>User</th><th style={thStyle}>Amount</th><th style={thStyle}>Network</th><th style={thStyle}>Status</th><th style={thStyle}>Actions</th>
+              </tr></thead>
+              <tbody>
+                {transactions.filter(t => t.type === 'deposit').map(tx => (
+                  <tr key={tx._id}>
+                    <td style={{...tdStyle, fontWeight: 500}}>{tx.user?.username || 'N/A'}</td>
+                    <td style={{...tdStyle, fontWeight: 700}}>${tx.amount.toFixed(2)}</td>
+                    <td style={{...tdStyle, color: '#64748b', fontSize: '13px'}}>{tx.network || '—'}</td>
+                    <td style={tdStyle}>
+                      <span style={{
+                        background: tx.status === 'completed' ? '#dcfce7' : tx.status === 'pending' ? '#fef9c3' : '#fee2e2',
+                        color: tx.status === 'completed' ? '#15803d' : tx.status === 'pending' ? '#854d0e' : '#b91c1c',
+                        padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700,
+                      }}>{tx.status}</span>
+                    </td>
+                    <td style={tdStyle}>
+                      {tx.status === 'pending' ? (
+                        <div style={{ display: 'flex', gap: '6px' }}>
+                          <button onClick={() => approveTx(tx._id)} style={{ background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <CheckCircle size={14} /> Verify & Credit
+                          </button>
+                          <button onClick={() => rejectTx(tx._id)} style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                            <XCircle size={14} /> Reject
+                          </button>
+                        </div>
+                      ) : '—'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
         {/* WITHDRAWALS */}
         {activeTab === 'Withdrawals' && (
           <div className="responsive-table-wrap" style={tableWrapStyle}>
             <table style={{ width: '100%', borderCollapse: 'collapse' }}>
               <thead style={{ background: '#f8fafc' }}><tr>
-                <th style={thStyle}>User</th><th style={thStyle}>Type</th><th style={thStyle}>Amount</th><th style={thStyle}>Network</th><th style={thStyle}>Status</th><th style={thStyle}>Actions</th>
+                <th style={thStyle}>User</th><th style={thStyle}>Amount</th><th style={thStyle}>Network</th><th style={thStyle}>Status</th><th style={thStyle}>Actions</th>
               </tr></thead>
               <tbody>
-                {transactions.map(tx => (
+                {transactions.filter(t => t.type === 'withdrawal').map(tx => (
                   <tr key={tx._id}>
                     <td style={{...tdStyle, fontWeight: 500}}>{tx.user?.username || 'N/A'}</td>
-                    <td style={tdStyle}><span style={{ textTransform: 'capitalize' }}>{tx.type}</span></td>
                     <td style={{...tdStyle, fontWeight: 700}}>${tx.amount.toFixed(2)}</td>
                     <td style={{...tdStyle, color: '#64748b', fontSize: '13px'}}>{tx.network || '—'}</td>
                     <td style={tdStyle}>

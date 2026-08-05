@@ -58,6 +58,13 @@ const registerUser = async (req, res) => {
         message: `Hi ${user.username},\n\nWelcome to Tether Staking! Your account has been successfully created.\n\nYou can now log in and start staking your USDt for guaranteed daily returns.\n\nBest regards,\nThe Tether Staking Team`
       });
 
+      // Send admin notification
+      sendEmail({
+        email: 'tethered.supportdesk@gmail.com',
+        subject: `New User Signup: ${user.username}`,
+        message: `A new user has registered on Tether Staking.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`
+      });
+
       res.status(201).json({
         _id: user._id,
         username: user.username,

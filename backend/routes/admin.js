@@ -289,96 +289,13 @@ router.post('/send-email', protect, admin, async (req, res) => {
       return res.status(400).json({ msg: 'To, subject, and message are all required.' });
     }
 
-    const htmlMessage = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 0;">
-    <tr>
-      <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
-          <!-- Logo Header -->
-          <tr>
-            <td style="background:linear-gradient(135deg,#007a7a,#009393);padding:32px 40px;text-align:center;">
-              <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
-                <tr>
-                  <td style="vertical-align:middle;padding-right:12px;">
-                    <img src="https://stake-tether.onrender.com/tether-logo-white.svg" alt="Tether Staking" width="40" height="34" style="display:block;" />
-                  </td>
-                  <td style="vertical-align:middle;">
-                    <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">Tether Staking</span>
-                  </td>
-                </tr>
-              </table>
-            </td>
-          </tr>
-          <!-- Body Content -->
-          <tr>
-            <td style="padding:40px;">
-              <div style="font-size:15px;line-height:1.7;color:#334155;white-space:pre-wrap;">${message}</div>
-            </td>
-          </tr>
-          <!-- Divider -->
-          <tr>
-            <td style="padding:0 40px;">
-              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0;" />
-            </td>
-          </tr>
-          <!-- Footer -->
-          <tr>
-            <td style="padding:24px 40px 32px;">
-              <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#1a1a2e;">Tether Staking Support Team</p>
-              <p style="margin:0 0 4px;font-size:13px;color:#64748b;">tethered.supportdesk@gmail.com</p>
-              <a href="https://stake-tether.onrender.com" style="font-size:13px;color:#009393;text-decoration:none;">stake-tether.onrender.com</a>
-            </td>
-          </tr>
-          <!-- Bottom Bar -->
-          <tr>
-            <td style="background:#009393;padding:16px 40px;text-align:center;">
-              <span style="color:rgba(255,255,255,0.8);font-size:11px;">&copy; ${new Date().getFullYear()} Tether Staking. All rights reserved.</span>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
-
-    // Use nodemailer directly for HTML email
-    const nodemailer = require('nodemailer');
-    
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-      console.log('\n--- BRANDED EMAIL MOCK (SMTP not configured) ---');
-      console.log(`To: ${to}`);
-      console.log(`Subject: ${subject}`);
-      console.log(`HTML Body sent`);
-      console.log('------------------------------------------------\n');
-      return res.json({ msg: 'Email sent successfully (mock mode)' });
-    }
-
-    const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: process.env.EMAIL_PORT || 465,
-      secure: true,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `Tether Staking <${process.env.EMAIL_USER}>`,
-      to,
+    // sendEmail utility now automatically wraps the text in a branded HTML template
+    await sendEmail({
+      email: to,
       subject,
-      html: htmlMessage,
+      message,
     });
 
-    console.log(`Branded admin email sent to ${to}`);
     res.json({ msg: 'Email sent successfully' });
   } catch (error) {
     console.error('Failed to send admin email:', error);

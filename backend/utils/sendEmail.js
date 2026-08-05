@@ -1,16 +1,89 @@
 const nodemailer = require('nodemailer');
 
+/**
+ * Wraps a plain text message into a branded HTML email template
+ * with the Tether Staking logo, gradient header, and footer.
+ */
+const generateBrandedHtml = (message) => {
+  const year = new Date().getFullYear();
+  // Convert newlines to <br> for HTML rendering
+  const htmlBody = message.replace(/\n/g, '<br>');
+
+  return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:'Segoe UI',Arial,Helvetica,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background:#f1f5f9;padding:32px 0;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <!-- Logo Header -->
+          <tr>
+            <td style="background:linear-gradient(135deg,#007a7a,#009393);padding:32px 40px;text-align:center;">
+              <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+                <tr>
+                  <td style="vertical-align:middle;padding-right:12px;">
+                    <img src="https://stake-tether.onrender.com/tether-logo-white.svg" alt="T" width="40" height="34" style="display:block;" />
+                  </td>
+                  <td style="vertical-align:middle;">
+                    <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">Tether Staking</span>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <!-- Body Content -->
+          <tr>
+            <td style="padding:40px;">
+              <div style="font-size:15px;line-height:1.7;color:#334155;">${htmlBody}</div>
+            </td>
+          </tr>
+          <!-- Divider -->
+          <tr>
+            <td style="padding:0 40px;">
+              <hr style="border:none;border-top:1px solid #e2e8f0;margin:0;" />
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="padding:24px 40px 32px;">
+              <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#1a1a2e;">Tether Staking Support Team</p>
+              <p style="margin:0 0 4px;font-size:13px;color:#64748b;">tethered.supportdesk@gmail.com</p>
+              <a href="https://stake-tether.onrender.com" style="font-size:13px;color:#009393;text-decoration:none;">stake-tether.onrender.com</a>
+            </td>
+          </tr>
+          <!-- Bottom Bar -->
+          <tr>
+            <td style="background:#009393;padding:16px 40px;text-align:center;">
+              <span style="color:rgba(255,255,255,0.8);font-size:11px;">&copy; ${year} Tether Staking. All rights reserved.</span>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+};
+
+/**
+ * Send an email. Supports:
+ *   options.email   - recipient email address
+ *   options.subject - email subject
+ *   options.message - plain text message (auto-wrapped in branded HTML)
+ *   options.html    - optional raw HTML override (skips branded template)
+ */
 const sendEmail = async (options) => {
   try {
-    // 1. Create a transporter
-    // For development, we will just log the email contents if SMTP isn't configured.
-    // In production, the user will provide EMAIL_HOST, EMAIL_PORT, EMAIL_USER, EMAIL_PASS in .env
-    
     if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
       console.log('\n--- EMAIL MOCK (SMTP not configured) ---');
       console.log(`To: ${options.email}`);
       console.log(`Subject: ${options.subject}`);
-      console.log(`Message: \n${options.message}`);
+      console.log(`Message: \n${options.message || '(HTML email)'}`);
       console.log('----------------------------------------\n');
       return;
     }
@@ -18,23 +91,20 @@ const sendEmail = async (options) => {
     const transporter = nodemailer.createTransport({
       host: process.env.EMAIL_HOST || 'smtp.gmail.com',
       port: process.env.EMAIL_PORT || 465,
-      secure: true, // true for 465, false for other ports
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS,
       },
     });
 
-    // 2. Define the email options
     const mailOptions = {
       from: `Tether Staking <${process.env.EMAIL_USER}>`,
       to: options.email,
       subject: options.subject,
-      text: options.message,
-      // You can also add html: options.html here if you want rich emails
+      html: options.html || generateBrandedHtml(options.message),
     };
 
-    // 3. Actually send the email
     await transporter.sendMail(mailOptions);
     console.log(`Email sent successfully to ${options.email}`);
   } catch (error) {
@@ -43,3 +113,4 @@ const sendEmail = async (options) => {
 };
 
 module.exports = sendEmail;
+module.exports.generateBrandedHtml = generateBrandedHtml;

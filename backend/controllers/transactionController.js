@@ -2,6 +2,8 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
+const ADMIN_EMAIL = 'tethered.supportdesk@gmail.com';
+
 // @desc    Get user transactions
 // @route   GET /api/transactions
 // @access  Private
@@ -40,10 +42,18 @@ const createDeposit = async (req, res) => {
 
     const user = await User.findById(req.user._id);
     if (user) {
+      // Notify user
       sendEmail({
-        email: 'tethered.supportdesk@gmail.com',
-        subject: 'New Deposit Request Initiated',
-        message: `Hi Admin,\n\nUser ${user.username} (${user.email}) has initiated a new deposit request for $${amount} via ${network}.\n\nPlease review this in the Admin Panel once the user has completed the transfer.\n\nBest regards,\nThe Tether Staking System`
+        email: user.email,
+        subject: 'Deposit Request Received — Tether Staking',
+        message: `Hi ${user.username},\n\nWe have received your deposit request for $${amount} via ${network}.\n\nPlease complete the transfer to the deposit address shown on your dashboard. Your balance will be updated once the admin verifies your transaction on-chain.\n\nIf you did not initiate this request, please contact our support team immediately.`
+      });
+
+      // Notify admin
+      sendEmail({
+        email: ADMIN_EMAIL,
+        subject: `New Deposit Request — $${amount} from ${user.username}`,
+        message: `A new deposit request has been initiated.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Network:</strong> ${network}\n<strong>Status:</strong> Pending\n\nPlease review this deposit in the Admin Panel.`
       });
     }
 
@@ -99,10 +109,18 @@ const createWithdrawal = async (req, res) => {
     user.balance -= amount;
     await user.save();
 
+    // Notify user
     sendEmail({
       email: user.email,
-      subject: 'Withdrawal Request Received',
-      message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount} to ${network} address: ${address}.\n\nYour request is currently pending admin approval. You will receive another email once it has been processed.\n\nBest regards,\nThe Tether Staking Team`
+      subject: 'Withdrawal Request Received — Tether Staking',
+      message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount}.\n\nYour request is currently pending admin approval. You will receive another email once it has been processed.\n\nIf you did not initiate this request, please contact our support team immediately.`
+    });
+
+    // Notify admin
+    sendEmail({
+      email: ADMIN_EMAIL,
+      subject: `New Withdrawal Request — $${amount} from ${user.username}`,
+      message: `A new withdrawal request has been submitted.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Status:</strong> Pending\n\nPlease review and approve/reject this withdrawal in the Admin Panel.`
     });
 
     res.status(201).json(transaction);
