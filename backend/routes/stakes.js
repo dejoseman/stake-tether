@@ -11,7 +11,7 @@ const StakingPlan = require('../models/StakingPlan');
 // @access  Public
 router.get('/plans', async (req, res) => {
   try {
-    const plans = await StakingPlan.find({ isActive: true });
+    const plans = await StakingPlan.find({ isActive: true }).sort({ min: 1 });
     res.json(plans);
   } catch (error) {
     console.error(error);
@@ -77,8 +77,7 @@ router.post('/purchase', protect, async (req, res) => {
       returnPercent: plan.returnPercent,
       durationHours: plan.durationHours,
       autoCompound: req.body.autoCompound || false,
-      completesAt,
-      status: 'active',
+      status: 'pending',
     });
 
     res.status(201).json({ msg: 'Stake purchased successfully', stake });

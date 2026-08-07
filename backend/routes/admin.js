@@ -190,6 +190,75 @@ router.put('/transactions/:id/reject', protect, admin, requireAdminPin, async (r
   }
 });
 
+// @desc    Approve a pending stake
+// @route   PUT /api/admin/stakes/:id/approve
+// @access  Private/Admin
+router.put('/stakes/:id/approve', protect, admin, requireAdminPin, async (req, res) => {
+  try {
+    const stake = await Staking.findById(req.params.id);
+    if (!stake) return res.status(404).json({ msg: 'Stake not found' });
+    if (stake.status !== 'pending') return res.status(400).json({ msg: 'Stake is not pending' });
+
+    const user = await User.findById(stake.user);
+    if (!user) return res.status(404).json({ msg: 'User not found' });
+
+    const now = new Date();
+    const completesAt = new Date(now.getTime() + stake.durationHours * 60 * 60 * 1000);
+
+    stake.status = 'active';
+    stake.startedAt = now;
+    stake.lastProcessedAt = now;
+    stake.completesAt = completesAt;
+    
+    await stake.save();
+
+    sendEmail({
+      email: user.email,
+      subject: `Staking Plan Approved: ${stake.planName}`,
+      message: `Hi ${user.username},\n\nGood news! Your staking request for $${stake.amount} on the ${stake.planName} has been approved.\n\nYour countdown has started and you will be able to cash out upon maturity.\n\nBest regards,\nThe GeneratingPro Team`
+    });
+
+    res.json({ msg: 'Stake approved successfully', stake });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
+
+// @desc    Reject a pending stake
+// @route   PUT /api/admin/stakes/:id/reject
+// @access  Private/Admin
+router.put('/stakes/:id/reject', protect, admin, requireAdminPin, async (req, res) => {
+  try {
+    const stake = await Staking.findById(req.params.id);
+    if (!stake) return res.status(404).json({ msg: 'Stake not found' });
+    if (stake.status !== 'pending') return res.status(400).json({ msg: 'Stake is not pending' });
+
+    // Refund the balance
+    const user = await User.findById(stake.user);
+    if (user) {
+      user.balance += stake.amount;
+      await user.save();
+    }
+
+    stake.status = 'failed';
+    await stake.save();
+
+    if (user) {
+      sendEmail({
+        email: user.email,
+        subject: `Staking Plan Rejected: ${stake.planName}`,
+        message: `Hi ${user.username},\n\nUnfortunately, your staking request for $${stake.amount} on the ${stake.planName} was rejected.\nThe funds have been returned to your balance.\n\nPlease contact support if you have any questions.\n\nBest regards,\nThe GeneratingPro Team`
+      });
+    }
+
+    res.json({ msg: 'Stake rejected', stake });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Server Error' });
+  }
+});
+
 // @desc    Approve KYC
 // @route   PUT /api/admin/kyc/:id/approve
 // @access  Private/Admin

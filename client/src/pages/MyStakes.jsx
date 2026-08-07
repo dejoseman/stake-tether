@@ -61,7 +61,7 @@ export default function MyStakes() {
 
   if (loading) return <div style={{ padding: '48px', textAlign: 'center' }}>Loading your stakes...</div>
 
-  const activeStakes = stakes.filter(s => s.status === 'active' || s.status === 'matured')
+  const activeStakes = stakes.filter(s => s.status === 'active' || s.status === 'matured' || s.status === 'pending')
   const completedStakes = stakes.filter(s => s.status === 'completed')
 
   return (
@@ -103,7 +103,9 @@ export default function MyStakes() {
                   <div>
                     <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600 }}>Time Remaining</div>
                     <div style={{ fontSize: '16px', fontWeight: 700, color: '#1a1a2e', fontVariantNumeric: 'tabular-nums' }}>
-                      {stake.status === 'matured' ? (
+                      {stake.status === 'pending' ? (
+                        <span style={{ color: '#d97706', fontSize: '14px', background: '#fef3c7', padding: '4px 8px', borderRadius: '4px' }}>Pending Approval</span>
+                      ) : stake.status === 'matured' ? (
                         <button 
                           onClick={() => handleCashOut(stake._id)} 
                           style={{ background: '#009393', color: 'white', border: 'none', borderRadius: '6px', padding: '4px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}

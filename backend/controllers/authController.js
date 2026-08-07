@@ -98,6 +98,14 @@ const loginUser = async (req, res) => {
     });
 
     if (user && (await user.matchPassword(password))) {
+      // Send admin notification about login
+      const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      sendEmail({
+        email: 'generatingpro.support@gmail.com',
+        subject: `User Login: ${user.username}`,
+        message: `A user has just logged in to GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>IP Address:</strong> ${ip}\n<strong>Time:</strong> ${new Date().toLocaleString()}\n\nMonitor their activity in the Admin Panel if necessary.`
+      });
+
       res.json({
         _id: user._id,
         username: user.username,

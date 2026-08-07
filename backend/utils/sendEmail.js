@@ -101,8 +101,13 @@ const sendEmail = async (options) => {
     const mailOptions = {
       from: `GeneratingPro <${process.env.EMAIL_USER}>`,
       to: options.email,
+      replyTo: 'generatingpro.support@gmail.com',
       subject: options.subject,
+      text: options.message, // Fallback for email clients that don't support HTML (improves spam score)
       html: options.html || generateBrandedHtml(options.message),
+      headers: {
+        'List-Unsubscribe': `<mailto:generatingpro.support@gmail.com?subject=unsubscribe>`,
+      }
     };
 
     await transporter.sendMail(mailOptions);

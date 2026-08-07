@@ -7,6 +7,12 @@ export default function Profile() {
   const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [file, setFile] = useState(null)
+  
+  // Wallet Update State
+  const [isEditingWallet, setIsEditingWallet] = useState(false)
+  const [newWalletAddress, setNewWalletAddress] = useState('')
+  const [isUpdatingWallet, setIsUpdatingWallet] = useState(false)
+  
   const [fullName, setFullName] = useState('')
   const [uploading, setUploading] = useState(false)
   const [referralStats, setReferralStats] = useState({ referralCode: '', totalReferred: 0, totalEarned: 0 })
@@ -60,7 +66,30 @@ export default function Profile() {
     }
   }
 
-  if (loading) return <div className="dashboard-content">Loading profile...</div>
+  const handleUpdateWallet = async () => {
+    if (newWalletAddress.length < 20) {
+      return toast.error('Please enter a valid USDT Wallet Address (at least 20 characters).')
+    }
+    
+    setIsUpdatingWallet(true)
+    try {
+      const token = localStorage.getItem('token')
+      const res = await axios.put('/api/auth/update-wallet', 
+        { tetherWalletId: newWalletAddress }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      
+      setProfile(prev => ({ ...prev, tetherWalletId: res.data.tetherWalletId }))
+      setIsEditingWallet(false)
+      toast.success('Wallet address updated successfully')
+    } catch (err) {
+      toast.error(err.response?.data?.msg || 'Failed to update wallet address')
+    } finally {
+      setIsUpdatingWallet(false)
+    }
+  }
+
+  if (loading) return <div style={{ padding: '48px', textAlign: 'center' }}>Loading profile...</div>
   return (
     <div className="dashboard-content">
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
@@ -99,11 +128,58 @@ export default function Profile() {
               )}
 
               {profile.tetherWalletId && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
-                  <Wallet size={20} color="#64748b" />
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>USDT Wallet Address</div>
-                    <div style={{ color: '#0f172a', fontWeight: 500, wordBreak: 'break-all', fontSize: '13px' }}>{profile.tetherWalletId}</div>
+                <div style={{ padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', gap: '12px', minWidth: 0 }}>
+                      <Wallet size={20} color="#64748b" style={{ flexShrink: 0, marginTop: '2px' }} />
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>USDT Wallet Address</div>
+                        
+                        {!isEditingWallet ? (
+                          <div style={{ color: '#0f172a', fontWeight: 500, wordBreak: 'break-all', fontSize: '13px' }}>
+                            {profile.tetherWalletId}
+                          </div>
+                        ) : (
+                          <div style={{ marginTop: '8px' }}>
+                            <input
+                              type="text"
+                              value={newWalletAddress}
+                              onChange={(e) => setNewWalletAddress(e.target.value)}
+                              placeholder="Enter new USDT Wallet Address"
+                              style={{ width: '100%', padding: '10px 14px', borderRadius: '8px', border: '1px solid #cbd5e1', fontSize: '13px', marginBottom: '8px' }}
+                            />
+                            <div style={{ display: 'flex', gap: '8px' }}>
+                              <button 
+                                onClick={handleUpdateWallet}
+                                disabled={isUpdatingWallet}
+                                style={{ background: '#009393', color: 'white', padding: '6px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}
+                              >
+                                {isUpdatingWallet ? 'Saving...' : 'Save'}
+                              </button>
+                              <button 
+                                onClick={() => setIsEditingWallet(false)}
+                                disabled={isUpdatingWallet}
+                                style={{ background: '#e2e8f0', color: '#475569', padding: '6px 16px', borderRadius: '6px', border: 'none', cursor: 'pointer', fontSize: '12px', fontWeight: 600 }}
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    {!isEditingWallet && (
+                      <button 
+                        onClick={() => {
+                          setNewWalletAddress(profile.tetherWalletId)
+                          setIsEditingWallet(true)
+                        }}
+                        style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0ea5e9', fontSize: '13px', fontWeight: 600 }}
+                      >
+                        Reset Wallet
+                      </button>
+                    )}
                   </div>
                 </div>
               )}

@@ -56,7 +56,9 @@ export default function AdminDashboard() {
       setTransactions(txRes.data)
       setStakes(stakesRes.data)
       setSettings(settingsRes.data)
-      setStakingPlans(plansRes.data)
+      // Sort plans by min amount ascending
+      const sortedPlans = [...plansRes.data].sort((a, b) => a.min - b.min)
+      setStakingPlans(sortedPlans)
     } catch (err) {
       toast.error('Failed to load admin data. Are you an admin?')
     } finally {
@@ -120,6 +122,22 @@ export default function AdminDashboard() {
     requirePin(async (authHeaders) => {
       await axios.put(`/api/admin/transactions/${txId}/reject`, {}, { headers: authHeaders })
       toast.success('Transaction rejected')
+      fetchData()
+    })
+  }
+
+  const approveStake = (stakeId) => {
+    requirePin(async (authHeaders) => {
+      await axios.put(`/api/admin/stakes/${stakeId}/approve`, {}, { headers: authHeaders })
+      toast.success('Stake approved and activated')
+      fetchData()
+    })
+  }
+
+  const rejectStake = (stakeId) => {
+    requirePin(async (authHeaders) => {
+      await axios.put(`/api/admin/stakes/${stakeId}/reject`, {}, { headers: authHeaders })
+      toast.success('Stake rejected and refunded')
       fetchData()
     })
   }
@@ -687,12 +705,23 @@ export default function AdminDashboard() {
                       <td style={tdStyle}>{s.returnPercent}%</td>
                       <td style={tdStyle}>
                         <span style={{
-                          background: s.status === 'active' ? '#dbeafe' : s.status === 'completed' ? '#dcfce7' : '#fee2e2',
-                          color: s.status === 'active' ? '#1d4ed8' : s.status === 'completed' ? '#15803d' : '#b91c1c',
+                          background: s.status === 'active' ? '#dbeafe' : s.status === 'completed' ? '#dcfce7' : s.status === 'pending' ? '#fef9c3' : '#fee2e2',
+                          color: s.status === 'active' ? '#1d4ed8' : s.status === 'completed' ? '#15803d' : s.status === 'pending' ? '#854d0e' : '#b91c1c',
                           padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700,
                         }}>{s.status}</span>
                       </td>
-                      <td style={{...tdStyle, color: '#64748b', fontSize: '13px'}}>{new Date(s.completesAt).toLocaleString()}</td>
+                      <td style={{...tdStyle, color: '#64748b', fontSize: '13px'}}>
+                        {s.status === 'pending' ? (
+                          <div style={{ display: 'flex', gap: '6px' }}>
+                            <button onClick={() => approveStake(s._id)} style={{ background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <CheckCircle size={14} /> Approve
+                            </button>
+                            <button onClick={() => rejectStake(s._id)} style={{ background: '#fee2e2', color: '#b91c1c', border: 'none', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                              <XCircle size={14} /> Reject
+                            </button>
+                          </div>
+                        ) : s.completesAt ? new Date(s.completesAt).toLocaleString() : '—'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
