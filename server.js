@@ -29,7 +29,14 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: [
+        'https://generatingpro.com',
+        'https://www.generatingpro.com',
+        'http://localhost:3000' 
+    ],
+    credentials: true
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
