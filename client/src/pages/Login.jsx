@@ -81,7 +81,7 @@ export default function Login() {
       </main>
 
       <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '12px', padding: '20px' }}>
-        Copyright © 2013 - {new Date().getFullYear()} Tether Operations, S.A. de C.V. All rights reserved.
+        Copyright © 2024 - {new Date().getFullYear()} GeneratingPro. All rights reserved.
       </div>
     </div>
   )

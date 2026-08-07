@@ -24,7 +24,7 @@ const stakingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['active', 'completed', 'cancelled'],
+    enum: ['active', 'completed', 'cancelled', 'matured'],
     default: 'active',
   },
   accruedRewards: {

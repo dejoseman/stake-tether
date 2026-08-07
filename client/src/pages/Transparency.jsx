@@ -11,30 +11,30 @@ export default function Transparency() {
             <div>
               <h1 className="hero__title">Transparency</h1>
               <p className="hero__description" style={{ color: '#4a4a68' }}>
-                All Tether tokens are pegged at 1-to-1 with a matching fiat currency and are backed 100% by Tether's Reserves. Information about Tether Tokens in circulation is typically published daily. The Tether Issuer's assets exceed its liabilities.
+                All USDt tokens are pegged at 1-to-1 with a matching fiat currency and are backed 100% by verified reserves. Information about tokens in circulation is typically published daily. The issuer's assets exceed its liabilities.
               </p>
             </div>
             
             <div>
-              <h3 style={{ fontSize: '20px', marginBottom: '1rem' }}>Tether Tokens in Circulation</h3>
+              <h3 style={{ fontSize: '20px', marginBottom: '1rem' }}>Stablecoins in Circulation</h3>
               <p style={{ fontSize: '14px', color: '#4a4a68', marginBottom: '2rem' }}>
-                The net circulation metrics below provide information on Tether Tokens in circulation and are for transparency only. These metrics are typically refreshed daily.
+                The net circulation metrics below provide information on stablecoins in circulation and are for transparency only. These metrics are typically refreshed daily.
               </p>
               
               <div className="card" style={{ background: 'rgba(255,255,255,0.8)', backdropFilter: 'blur(10px)' }}>
                 <div className="grid grid--2">
                   <div>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#4a4a68' }}>USD₮ in Tether</p>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#4a4a68' }}>USD₮ Circulation</p>
                     <p style={{ fontSize: '24px', fontWeight: 700, color: '#009393', margin: '4px 0' }}>$118,430,175,576.29</p>
                     <p style={{ fontSize: '12px', color: '#8888a0' }}>(Net Circulation)</p>
                   </div>
                   <div>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#4a4a68' }}>MXN₮ in Tether</p>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#4a4a68' }}>MXN₮ Circulation</p>
                     <p style={{ fontSize: '24px', fontWeight: 700, color: '#009393', margin: '4px 0' }}>Mex$19,562,400.00</p>
                     <p style={{ fontSize: '12px', color: '#8888a0' }}>(Net Circulation)</p>
                   </div>
                   <div style={{ marginTop: '1rem' }}>
-                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#4a4a68' }}>XAU₮ in Tether</p>
+                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#4a4a68' }}>XAU₮ Circulation</p>
                     <p style={{ fontSize: '24px', fontWeight: 700, color: '#009393', margin: '4px 0' }}>₮707,747.09</p>
                     <p style={{ fontSize: '12px', color: '#8888a0' }}>(Net Circulation)</p>
                   </div>

@@ -9,32 +9,32 @@ export default function Home() {
     {
       icon: <Link2 size={32} strokeWidth={1.5} color="#009393" />,
       title: 'Multiple Blockchains',
-      text: 'Tether tokens are built on multiple blockchains offering easy integration and adoption across Ethereum, Tron, Solana, Avalanche, Polygon, and more.',
+      text: 'USDt tokens are built on multiple blockchains offering easy integration and adoption across Ethereum, Tron, Solana, Avalanche, Polygon, and more.',
     },
     {
       icon: <Droplets size={32} strokeWidth={1.5} color="#009393" />,
       title: 'Unparalleled Liquidity',
-      text: 'Tether tokens are among the most traded tokens by daily volume, offering unequalled liquidity across major exchanges worldwide.',
+      text: 'USDt tokens are among the most traded tokens by daily volume, offering unequalled liquidity across major exchanges worldwide.',
     },
     {
       icon: <ShieldCheck size={32} strokeWidth={1.5} color="#009393" />,
       title: '100% Backed by Reserves',
-      text: 'All Tether tokens are pegged 1-to-1 with a matching fiat currency and are backed 100% by Tether\'s reserves.',
+      text: 'All USDt tokens are pegged 1-to-1 with a matching fiat currency and are backed 100% by verified reserves.',
     },
     {
       icon: <Wallet size={32} strokeWidth={1.5} color="#009393" />,
       title: 'Widespread Adoption',
-      text: 'From exchanges and digital wallets to DeFi protocols and payment services, Tether tokens offer a smart alternative to fiat gateways.',
+      text: 'From exchanges and digital wallets to DeFi protocols and payment services, USDt tokens offer a smart alternative to fiat gateways.',
     },
     {
       icon: <Eye size={32} strokeWidth={1.5} color="#009393" />,
       title: 'Fully Transparent',
-      text: 'Tether tokens\' issued and reserve assets are publicly available and updated daily for full transparency.',
+      text: 'USDt issued and reserve assets are publicly available and updated daily for full transparency.',
     },
     {
       icon: <CheckCircle2 size={32} strokeWidth={1.5} color="#009393" />,
       title: 'Regulatory Compliant',
-      text: 'Tether maintains world-class compliance measures for AML, CFT, sanctions, and KYC laws and regulations.',
+      text: 'GeneratingPro maintains world-class compliance measures for AML, CFT, sanctions, and KYC laws and regulations.',
     },
   ]
 
@@ -42,17 +42,17 @@ export default function Home() {
     {
       icon: <User size={48} strokeWidth={1.5} color="#009393" />,
       title: 'For Individuals',
-      text: 'Tether tokens offer exceptional liquidity on tier-one exchanges, giving traders the ability to take advantage of arbitrage opportunities quickly.',
+      text: 'USDt tokens offer exceptional liquidity on tier-one exchanges, giving traders the ability to take advantage of arbitrage opportunities quickly.',
     },
     {
       icon: <ShoppingCart size={48} strokeWidth={1.5} color="#009393" />,
       title: 'For Merchants',
-      text: 'Integrating Tether tokens opens up an array of opportunities for consumers to purchase products and services seamlessly.',
+      text: 'Integrating USDt tokens opens up an array of opportunities for consumers to purchase products and services seamlessly.',
     },
     {
       icon: <LineChart size={48} strokeWidth={1.5} color="#009393" />,
       title: 'For Exchanges',
-      text: 'Tether tokens play a pivotal role in the digital token ecosystem and are the most actively traded in terms of 24-hour volume.',
+      text: 'USDt tokens play a pivotal role in the digital token ecosystem and are the most actively traded in terms of 24-hour volume.',
     },
   ]
 
@@ -76,11 +76,11 @@ export default function Home() {
                 Driving the Future of Money
               </h1>
               <p className="hero__description">
-                Tether tokens are the most widely adopted stablecoins, having pioneered the concept in the digital token space. A disruptor to the conventional financial system and a trailblazer in the digital use of traditional currencies.
+                USDt stablecoins are the most widely adopted digital dollars, having pioneered the concept in the digital token space. A disruptor to the conventional financial system and a trailblazer in the digital use of traditional currencies.
               </p>
               <div className="hero__actions">
                 <Link to="/signup" className="btn btn--primary btn--lg">Create Account</Link>
-                <Link to="/how-it-works" className="btn btn--secondary btn--lg">Learn How Tether Works</Link>
+                <Link to="/how-it-works" className="btn btn--secondary btn--lg">Learn How It Works</Link>
               </div>
             </motion.div>
             <motion.div
@@ -108,7 +108,7 @@ export default function Home() {
           <div className="section-header">
             <h2 className="section-header__title">Trusted by Millions Worldwide</h2>
             <p className="section-header__subtitle">
-              Tether tokens are the most widely used stablecoins across the globe, built for stability, transparency, and reliability.
+              USDt stablecoins are the most widely used digital dollars across the globe, built for stability, transparency, and reliability.
             </p>
           </div>
           <div className="grid grid--3">
@@ -135,9 +135,9 @@ export default function Home() {
       <section className="section">
         <div className="container">
           <div className="section-header">
-            <h2 className="section-header__title">Why Choose Tether?</h2>
+            <h2 className="section-header__title">Why Choose GeneratingPro?</h2>
             <p className="section-header__subtitle">
-              Whether for personal use or business, Tether tokens offer many benefits as the most stable, liquid, and trusted stablecoin.
+              Whether for personal use or business, USDt tokens offer many benefits as the most stable, liquid, and trusted stablecoin.
             </p>
           </div>
           <div className="grid grid--2">

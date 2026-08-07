@@ -102,7 +102,7 @@ export default function Profile() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '16px', background: '#f8fafc', borderRadius: '12px' }}>
                   <Wallet size={20} color="#64748b" />
                   <div style={{ minWidth: 0 }}>
-                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tether Wallet ID</div>
+                    <div style={{ fontSize: '12px', color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>USDT Wallet Address</div>
                     <div style={{ color: '#0f172a', fontWeight: 500, wordBreak: 'break-all', fontSize: '13px' }}>{profile.tetherWalletId}</div>
                   </div>
                 </div>

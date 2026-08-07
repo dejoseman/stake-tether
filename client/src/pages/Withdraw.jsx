@@ -46,7 +46,7 @@ export default function Withdraw() {
       <div className="card">
         <div style={{ background: '#f5f7fa', padding: '16px', borderRadius: '8px', marginBottom: '24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ color: '#4a4a68', fontWeight: 600 }}>Asset</span>
-          <span style={{ color: '#009393', fontWeight: 800, fontSize: '16px' }}>Tether USDt</span>
+          <span style={{ color: '#009393', fontWeight: 800, fontSize: '16px' }}>USDt</span>
         </div>
 
         <form onSubmit={handleWithdraw}>

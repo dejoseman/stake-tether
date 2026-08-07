@@ -72,7 +72,7 @@ export default function Signup() {
     }
 
     if (formData.tetherWalletId.length < 20) {
-      return toast.error('Please enter a valid Tether Wallet ID (at least 20 characters).')
+      return toast.error('Please enter a valid USDT Wallet Address (at least 20 characters).')
     }
 
     try {
@@ -229,7 +229,7 @@ export default function Signup() {
       </main>
 
       <div style={{ textAlign: 'center', color: 'rgba(255,255,255,0.7)', fontSize: '12px', padding: '20px' }}>
-        Copyright © 2013 - {new Date().getFullYear()} Tether Operations, S.A. de C.V. All rights reserved.
+        Copyright © 2024 - {new Date().getFullYear()} GeneratingPro. All rights reserved.
       </div>
     </div>
   )

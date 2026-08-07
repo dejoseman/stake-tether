@@ -31,7 +31,7 @@ export default function Transfer() {
     <div className="dashboard-content">
       <div style={{ maxWidth: '600px', margin: '0 auto' }}>
         <h1 style={{ fontSize: '28px', color: '#1a1a2e', marginBottom: '8px' }}>Transfer Funds</h1>
-        <p style={{ color: '#4a4a68', marginBottom: '32px' }}>Send Tether instantly to any other user.</p>
+        <p style={{ color: '#4a4a68', marginBottom: '32px' }}>Send USDt instantly to any other user.</p>
 
         <div style={{ background: 'white', borderRadius: '16px', padding: '32px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
           <form onSubmit={handleTransfer}>
