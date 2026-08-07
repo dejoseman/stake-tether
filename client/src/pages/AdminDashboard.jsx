@@ -263,7 +263,7 @@ export default function AdminDashboard() {
                 <Mail size={22} color="white" />
                 <div>
                   <div style={{ color: 'white', fontWeight: 700, fontSize: '16px' }}>Compose Email</div>
-                  <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '12px' }}>From: tethered.supportdesk@gmail.com</div>
+                  <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '12px' }}>From: generatingpro.support@gmail.com</div>
                 </div>
               </div>
               <button onClick={() => { setEmailModal({ isOpen: false, to: '', username: '' }); setEmailSubject(''); setEmailBody(''); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', display: 'flex' }}>
@@ -312,7 +312,7 @@ export default function AdminDashboard() {
               {/* Email Preview Note */}
               <div style={{ background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: '10px', padding: '12px 16px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '10px' }}>
                 <CheckCircle size={16} color="#15803d" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: '13px', color: '#166534' }}>This email will be sent with the official Tether Staking branding, logo, and signature.</span>
+                <span style={{ fontSize: '13px', color: '#166534' }}>This email will be sent with the official GeneratingPro branding, logo, and signature.</span>
               </div>
 
               {/* Actions */}
@@ -422,8 +422,8 @@ export default function AdminDashboard() {
                         <button 
                           onClick={() => {
                             setEmailModal({ isOpen: true, to: user.email, username: user.username });
-                            setEmailSubject(`Tether Staking — Account Update for ${user.username}`);
-                            setEmailBody(`Hi ${user.username},\n\nThank you for being a valued member of Tether Staking.\n\n`);
+                            setEmailSubject(`GeneratingPro — Account Update for ${user.username}`);
+                            setEmailBody(`Hi ${user.username},\n\nThank you for being a valued member of GeneratingPro.\n\n`);
                           }}
                           title={`Email ${user.email}`}
                           style={{ 

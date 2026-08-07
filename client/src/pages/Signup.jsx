@@ -165,7 +165,7 @@ export default function Signup() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="tetherWalletId">Tether Wallet ID (USDT Address)*</label>
+              <label htmlFor="tetherWalletId">USDT Wallet Address*</label>
               <input
                 type="text"
                 id="tetherWalletId"

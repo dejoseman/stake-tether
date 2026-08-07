@@ -209,7 +209,7 @@ export default function Profile() {
             <h2 style={{ fontSize: '20px', color: '#1a1a2e' }}>Referral Program</h2>
           </div>
           <p style={{ color: '#64748b', marginBottom: '24px', fontSize: '14px' }}>
-            Invite your friends to Tether Staking and earn rewards!
+            Invite your friends to GeneratingPro and earn rewards!
           </p>
 
           <div style={{ display: 'flex', gap: '24px', flexWrap: 'wrap', marginBottom: '24px' }}>

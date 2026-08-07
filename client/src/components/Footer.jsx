@@ -8,17 +8,17 @@ export default function Footer() {
     {
       heading: 'Resources',
       links: [
-        { label: 'News', href: 'https://tether.io/news', external: true },
+        { label: 'News', href: '#' },
         { label: 'FAQs', href: '#' },
         { label: 'Integration Guidelines', href: '#' },
         { label: 'Media Assets', href: '#' },
-        { label: 'Tether Facts', href: '#' },
+        { label: 'Platform Facts', href: '#' },
       ],
     },
     {
-      heading: 'Tether',
+      heading: 'Platform',
       links: [
-        { label: 'Why Tether?', to: '/why-tether' },
+        { label: 'Why GeneratingPro?', to: '/why-tether' },
         { label: 'How It Works', to: '/how-it-works' },
         { label: 'Transparency', to: '/transparency' },
         { label: 'Knowledge Base', href: '#' },
@@ -28,10 +28,9 @@ export default function Footer() {
     {
       heading: 'Products',
       links: [
-        { label: 'Tether token USDt', href: '#' },
-        { label: 'Tether token MXNt', href: '#' },
-
-        { label: 'Alloy by Tether', href: '#' },
+        { label: 'USDt Staking', href: '#' },
+        { label: 'Premium Plans', href: '#' },
+        { label: 'Yield Engine', href: '#' },
       ],
     },
     {
@@ -81,11 +80,11 @@ export default function Footer() {
         <div className="footer__bottom">
           <Link to="/" className="footer__logo">
             <TetherLogo color="#ffffff" size={28} />
-            tether
+            GeneratingPro
           </Link>
 
           <p className="footer__copyright">
-            © 2013 - {new Date().getFullYear()} Tether Operations, S.A. de C.V. All rights reserved.
+            © 2024 - {new Date().getFullYear()} GeneratingPro. All rights reserved.
           </p>
 
           <div className="footer__socials">

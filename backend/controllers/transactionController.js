@@ -2,7 +2,7 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
-const ADMIN_EMAIL = 'tethered.supportdesk@gmail.com';
+const ADMIN_EMAIL = 'generatingpro.support@gmail.com';
 
 // @desc    Get user transactions
 // @route   GET /api/transactions
@@ -45,7 +45,7 @@ const createDeposit = async (req, res) => {
       // Notify user
       sendEmail({
         email: user.email,
-        subject: 'Deposit Request Received — Tether Staking',
+        subject: 'Deposit Request Received — GeneratingPro',
         message: `Hi ${user.username},\n\nWe have received your deposit request for $${amount} via ${network}.\n\nPlease complete the transfer to the deposit address shown on your dashboard. Your balance will be updated once the admin verifies your transaction on-chain.\n\nIf you did not initiate this request, please contact our support team immediately.`
       });
 
@@ -117,7 +117,7 @@ const createWithdrawal = async (req, res) => {
     // Notify user
     sendEmail({
       email: user.email,
-      subject: 'Withdrawal Request Received — Tether Staking',
+      subject: 'Withdrawal Request Received — GeneratingPro',
       message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount} to ${network} address: ${address}.\n\nYour request is currently pending admin approval. You will receive another email once it has been processed.\n\nIf you did not initiate this request, please contact our support team immediately.`
     });
 

@@ -144,7 +144,7 @@ router.put('/transactions/:id/approve', protect, admin, requireAdminPin, async (
     sendEmail({
       email: user.email,
       subject: `Transaction Approved: $${transaction.amount}`,
-      message: `Hi ${user.username},\n\nGood news! Your ${transaction.type} request for $${transaction.amount} has been approved and processed.\n\nBest regards,\nThe Tether Staking Team`
+      message: `Hi ${user.username},\n\nGood news! Your ${transaction.type} request for $${transaction.amount} has been approved and processed.\n\nBest regards,\nThe GeneratingPro Team`
     });
 
     res.json({ msg: 'Transaction approved successfully', transaction });
@@ -179,7 +179,7 @@ router.put('/transactions/:id/reject', protect, admin, requireAdminPin, async (r
       sendEmail({
         email: emailUser.email,
         subject: `Transaction Rejected: $${transaction.amount}`,
-        message: `Hi ${emailUser.username},\n\nUnfortunately, your ${transaction.type} request for $${transaction.amount} was rejected by the administration.\nIf this was a withdrawal, the funds have been returned to your balance.\n\nPlease contact support for more details.\n\nBest regards,\nThe Tether Staking Team`
+        message: `Hi ${emailUser.username},\n\nUnfortunately, your ${transaction.type} request for $${transaction.amount} was rejected by the administration.\nIf this was a withdrawal, the funds have been returned to your balance.\n\nPlease contact support for more details.\n\nBest regards,\nThe GeneratingPro Team`
       });
     }
 
@@ -204,7 +204,7 @@ router.put('/kyc/:id/approve', protect, admin, requireAdminPin, async (req, res)
     sendEmail({
       email: user.email,
       subject: 'KYC Verification Approved',
-      message: `Hi ${user.username},\n\nYour Identity Verification (KYC) has been successfully approved!\n\nBest regards,\nThe Tether Staking Team`
+      message: `Hi ${user.username},\n\nYour Identity Verification (KYC) has been successfully approved!\n\nBest regards,\nThe GeneratingPro Team`
     });
 
     res.json({ msg: 'KYC Approved successfully', user });
@@ -229,7 +229,7 @@ router.put('/kyc/:id/reject', protect, admin, requireAdminPin, async (req, res) 
     sendEmail({
       email: user.email,
       subject: 'KYC Verification Rejected',
-      message: `Hi ${user.username},\n\nUnfortunately, your Identity Verification (KYC) was rejected.\n\nReason: ${user.kycRejectionNote}\n\nPlease ensure the document is clear, valid, and matches your account details, then try again.\n\nBest regards,\nThe Tether Staking Team`
+      message: `Hi ${user.username},\n\nUnfortunately, your Identity Verification (KYC) was rejected.\n\nReason: ${user.kycRejectionNote}\n\nPlease ensure the document is clear, valid, and matches your account details, then try again.\n\nBest regards,\nThe GeneratingPro Team`
     });
 
     res.json({ msg: 'KYC Rejected successfully', user });

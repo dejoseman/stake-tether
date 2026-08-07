@@ -10,10 +10,10 @@ export default function Navbar() {
   const { theme, toggleTheme } = useTheme()
 
   const links = [
-    { to: '/why-tether', label: 'Why Tether?' },
+    { to: '/why-tether', label: 'Why GeneratingPro?' },
     { to: '/how-it-works', label: 'How it works' },
     { to: '/staking-plans', label: 'Staking Plans' },
-    { href: 'https://tether.io/news', label: 'News', external: true },
+    { href: '#', label: 'News' },
 
     { to: '/transparency', label: 'Transparency' },
   ]
@@ -24,7 +24,7 @@ export default function Navbar() {
         <div className="navbar__inner">
           <Link to="/" className="navbar__logo">
             <TetherLogo color="#009393" size={36} />
-            tether
+            GeneratingPro
           </Link>
 
           <div className="navbar__links">

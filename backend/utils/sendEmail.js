@@ -2,7 +2,7 @@ const nodemailer = require('nodemailer');
 
 /**
  * Wraps a plain text message into a branded HTML email template
- * with the Tether Staking logo, gradient header, and footer.
+ * with the GeneratingPro logo, gradient header, and footer.
  */
 const generateBrandedHtml = (message) => {
   const year = new Date().getFullYear();
@@ -27,10 +27,10 @@ const generateBrandedHtml = (message) => {
               <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
                 <tr>
                   <td style="vertical-align:middle;padding-right:12px;">
-                    <img src="https://stake-tether.onrender.com/tether-logo-white.svg" alt="T" width="40" height="34" style="display:block;" />
+                    <img src="https://generatingpro.com/gp-logo-white.svg" alt="GP" width="40" height="34" style="display:block;" />
                   </td>
                   <td style="vertical-align:middle;">
-                    <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">Tether Staking</span>
+                    <span style="color:#ffffff;font-size:22px;font-weight:700;letter-spacing:0.5px;">GeneratingPro</span>
                   </td>
                 </tr>
               </table>
@@ -51,15 +51,15 @@ const generateBrandedHtml = (message) => {
           <!-- Footer -->
           <tr>
             <td style="padding:24px 40px 32px;">
-              <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#1a1a2e;">Tether Staking Support Team</p>
-              <p style="margin:0 0 4px;font-size:13px;color:#64748b;">tethered.supportdesk@gmail.com</p>
-              <a href="https://stake-tether.onrender.com" style="font-size:13px;color:#009393;text-decoration:none;">stake-tether.onrender.com</a>
+              <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#1a1a2e;">GeneratingPro Support Team</p>
+              <p style="margin:0 0 4px;font-size:13px;color:#64748b;">generatingpro.support@gmail.com</p>
+              <a href="https://generatingpro.com" style="font-size:13px;color:#009393;text-decoration:none;">generatingpro.com</a>
             </td>
           </tr>
           <!-- Bottom Bar -->
           <tr>
             <td style="background:#009393;padding:16px 40px;text-align:center;">
-              <span style="color:rgba(255,255,255,0.8);font-size:11px;">&copy; ${year} Tether Staking. All rights reserved.</span>
+              <span style="color:rgba(255,255,255,0.8);font-size:11px;">&copy; ${year} GeneratingPro. All rights reserved.</span>
             </td>
           </tr>
         </table>
@@ -99,7 +99,7 @@ const sendEmail = async (options) => {
     });
 
     const mailOptions = {
-      from: `Tether Staking <${process.env.EMAIL_USER}>`,
+      from: `GeneratingPro <${process.env.EMAIL_USER}>`,
       to: options.email,
       subject: options.subject,
       html: options.html || generateBrandedHtml(options.message),

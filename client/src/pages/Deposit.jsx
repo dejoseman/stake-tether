@@ -54,7 +54,7 @@ export default function Deposit() {
           <div className="form-group">
             <label>Asset</label>
             <div style={{ width: '100%', padding: '12px 16px', fontSize: '15px', borderRadius: '8px', border: '2px solid #e2e8f0', background: '#f8fafc', color: '#1a1a2e', fontWeight: 600 }}>
-              Tether USDt
+              USDt
             </div>
           </div>
 
