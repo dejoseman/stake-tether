@@ -149,7 +149,7 @@ export default function MyStakes() {
                   <td style={{ padding: '16px', fontWeight: 600 }}>{stake.planName}</td>
                   <td style={{ padding: '16px' }}>${stake.amount.toFixed(2)}</td>
                   <td style={{ padding: '16px', fontWeight: 700, color: '#15803d' }}>
-                    ${(stake.amount + (stake.amount * stake.returnPercent / 100)).toFixed(2)}
+                    ${(stake.amount + (stake.accruedRewards || 0)).toFixed(2)}
                   </td>
                   <td style={{ padding: '16px' }}>
                     <span style={{ background: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>

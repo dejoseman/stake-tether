@@ -99,7 +99,7 @@ const sendEmail = async (options) => {
     });
 
     const mailOptions = {
-      from: `GeneratingPro <${process.env.EMAIL_USER}>`,
+      from: process.env.EMAIL_FROM || `GeneratingPro <${process.env.EMAIL_USER}>`,
       to: options.email,
       replyTo: 'generatingpro.support@gmail.com',
       subject: options.subject,

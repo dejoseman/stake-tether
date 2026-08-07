@@ -694,7 +694,7 @@ export default function AdminDashboard() {
             ) : (
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead style={{ background: '#f8fafc' }}><tr>
-                  <th style={thStyle}>User</th><th style={thStyle}>Plan</th><th style={thStyle}>Amount</th><th style={thStyle}>Return</th><th style={thStyle}>Status</th><th style={thStyle}>Completes At</th>
+                  <th style={thStyle}>User</th><th style={thStyle}>Plan</th><th style={thStyle}>Amount</th><th style={thStyle}>Return</th><th style={thStyle}>Status</th><th style={thStyle}>Completes At</th><th style={thStyle}>Actions</th>
                 </tr></thead>
                 <tbody>
                   {stakes.map(s => (
@@ -711,6 +711,9 @@ export default function AdminDashboard() {
                         }}>{s.status}</span>
                       </td>
                       <td style={{...tdStyle, color: '#64748b', fontSize: '13px'}}>
+                        {s.completesAt ? new Date(s.completesAt).toLocaleString() : '—'}
+                      </td>
+                      <td style={tdStyle}>
                         {s.status === 'pending' ? (
                           <div style={{ display: 'flex', gap: '6px' }}>
                             <button onClick={() => approveStake(s._id)} style={{ background: '#dcfce7', color: '#15803d', border: 'none', borderRadius: '8px', padding: '7px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '12px', display: 'flex', alignItems: 'center', gap: '4px' }}>
@@ -720,7 +723,7 @@ export default function AdminDashboard() {
                               <XCircle size={14} /> Reject
                             </button>
                           </div>
-                        ) : s.completesAt ? new Date(s.completesAt).toLocaleString() : '—'}
+                        ) : '—'}
                       </td>
                     </tr>
                   ))}
