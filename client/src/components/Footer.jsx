@@ -8,7 +8,6 @@ export default function Footer() {
     {
       heading: 'Resources',
       links: [
-        { label: 'News', href: '#' },
         { label: 'FAQs', href: '#' },
         { label: 'Integration Guidelines', href: '#' },
         { label: 'Media Assets', href: '#' },

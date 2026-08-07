@@ -13,8 +13,6 @@ export default function Navbar() {
     { to: '/why-tether', label: 'Why GeneratingPro?' },
     { to: '/how-it-works', label: 'How it works' },
     { to: '/staking-plans', label: 'Staking Plans' },
-    { href: '#', label: 'News' },
-
     { to: '/transparency', label: 'Transparency' },
   ]
 
