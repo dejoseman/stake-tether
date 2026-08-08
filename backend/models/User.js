@@ -34,6 +34,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0.00,
   },
+  totalDeposit: {
+    type: Number,
+    default: 0.00,
+  },
   kycStatus: {
     type: String,
     enum: ['unverified', 'pending', 'verified', 'rejected'],

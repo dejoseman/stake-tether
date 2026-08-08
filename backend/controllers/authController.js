@@ -60,7 +60,7 @@ const registerUser = async (req, res) => {
 
       // Send admin notification
       sendEmail({
-        email: 'generatingpro.support@gmail.com',
+        email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
         subject: `New User Signup: ${user.username}`,
         message: `A new user has registered on GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`
       });
@@ -101,7 +101,7 @@ const loginUser = async (req, res) => {
       // Send admin notification about login
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
       sendEmail({
-        email: 'generatingpro.support@gmail.com',
+        email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
         subject: `User Login: ${user.username}`,
         message: `A user has just logged in to GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>IP Address:</strong> ${ip}\n<strong>Time:</strong> ${new Date().toLocaleString()}\n\nMonitor their activity in the Admin Panel if necessary.`
       });
@@ -140,6 +140,7 @@ const getUserProfile = async (req, res) => {
       kycRejectionNote: user.kycRejectionNote,
       role: user.role,
       dailyWithdrawalLimit: user.dailyWithdrawalLimit,
+      totalDeposit: user.totalDeposit || 0,
     });
   } else {
     res.status(404).json({ msg: 'User not found' });

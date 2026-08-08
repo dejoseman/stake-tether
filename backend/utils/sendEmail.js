@@ -6,6 +6,7 @@ const nodemailer = require('nodemailer');
  */
 const generateBrandedHtml = (message) => {
   const year = new Date().getFullYear();
+  const supportEmail = process.env.FROM_EMAIL || 'support@generatingpro.com';
   // Convert newlines to <br> for HTML rendering
   const htmlBody = message.replace(/\n/g, '<br>');
 
@@ -52,7 +53,7 @@ const generateBrandedHtml = (message) => {
           <tr>
             <td style="padding:24px 40px 32px;">
               <p style="margin:0 0 4px;font-size:14px;font-weight:600;color:#1a1a2e;">GeneratingPro Support Team</p>
-              <p style="margin:0 0 4px;font-size:13px;color:#64748b;">generatingpro.support@gmail.com</p>
+              <p style="margin:0 0 4px;font-size:13px;color:#64748b;">${supportEmail}</p>
               <a href="https://generatingpro.com" style="font-size:13px;color:#009393;text-decoration:none;">generatingpro.com</a>
             </td>
           </tr>
@@ -89,7 +90,7 @@ const sendEmail = async (options) => {
     }
 
     const transporter = nodemailer.createTransport({
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+      host: process.env.EMAIL_HOST || 'smtp.resend.com',
       port: process.env.EMAIL_PORT || 465,
       secure: true,
       auth: {
@@ -98,15 +99,17 @@ const sendEmail = async (options) => {
       },
     });
 
+    const fromEmail = process.env.FROM_EMAIL || 'support@generatingpro.com';
+
     const mailOptions = {
-      from: process.env.EMAIL_FROM || `GeneratingPro <${process.env.EMAIL_USER}>`,
+      from: `GeneratingPro <${fromEmail}>`,
       to: options.email,
-      replyTo: 'generatingpro.support@gmail.com',
+      replyTo: fromEmail,
       subject: options.subject,
       text: options.message, // Fallback for email clients that don't support HTML (improves spam score)
       html: options.html || generateBrandedHtml(options.message),
       headers: {
-        'List-Unsubscribe': `<mailto:generatingpro.support@gmail.com?subject=unsubscribe>`,
+        'List-Unsubscribe': `<mailto:${fromEmail}?subject=unsubscribe>`,
       }
     };
 

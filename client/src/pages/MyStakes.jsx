@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import toast from 'react-hot-toast'
-import { TrendingUp, Clock } from 'lucide-react'
+import { TrendingUp, CheckCircle } from 'lucide-react'
+import CountdownTimer from '../components/CountdownTimer'
 
 export default function MyStakes() {
   const [stakes, setStakes] = useState([])
   const [loading, setLoading] = useState(true)
-
-  // Force re-render every second to update countdowns
-  const [, setTick] = useState(0)
 
   useEffect(() => {
     const fetchStakes = async () => {
@@ -25,43 +23,11 @@ export default function MyStakes() {
       }
     }
     fetchStakes()
-
-    const interval = setInterval(() => setTick(t => t + 1), 1000)
-    return () => clearInterval(interval)
   }, [])
-
-  const handleCashOut = async (stakeId) => {
-    try {
-      const token = localStorage.getItem('token');
-      const res = await axios.post(`/api/stakes/${stakeId}/cashout`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success('Stake cashed out successfully!');
-      
-      // Update UI state locally to avoid reload
-      setStakes(stakes.map(s => s._id === stakeId ? { ...s, status: 'completed' } : s));
-    } catch (err) {
-      toast.error(err.response?.data?.msg || 'Failed to cash out stake.');
-    }
-  };
-
-  const formatCountdown = (dateString) => {
-    const target = new Date(dateString).getTime()
-    const now = new Date().getTime()
-    const diff = target - now
-
-    if (diff <= 0) return 'Processing...'
-
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
-    const seconds = Math.floor((diff % (1000 * 60)) / 1000)
-
-    return `${hours}h ${minutes}m ${seconds}s`
-  }
 
   if (loading) return <div style={{ padding: '48px', textAlign: 'center' }}>Loading your stakes...</div>
 
-  const activeStakes = stakes.filter(s => s.status === 'active' || s.status === 'matured' || s.status === 'pending')
+  const activeStakes = stakes.filter(s => s.status === 'pending' || s.status === 'active')
   const completedStakes = stakes.filter(s => s.status === 'completed')
 
   return (
@@ -71,7 +37,7 @@ export default function MyStakes() {
         <h1 style={{ fontSize: '28px', color: '#1a1a2e' }}>My Stakes</h1>
       </div>
 
-      <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#1a1a2e' }}>Active & Matured Stakes ({activeStakes.length})</h2>
+      <h2 style={{ fontSize: '20px', marginBottom: '16px', color: '#1a1a2e' }}>Active Stakes ({activeStakes.length})</h2>
       {activeStakes.length === 0 ? (
         <div style={{ background: 'white', padding: '32px', borderRadius: '16px', textAlign: 'center', color: '#64748b', marginBottom: '48px' }}>
           You have no active stakes right now.
@@ -99,23 +65,13 @@ export default function MyStakes() {
                 </div>
 
                 <div style={{ background: '#f8fafc', padding: '12px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '12px', border: '1px solid #e2e8f0' }}>
-                  <Clock size={20} color="#0ea5e9" />
                   <div>
-                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600 }}>Time Remaining</div>
-                    <div style={{ fontSize: '16px', fontWeight: 700, color: '#1a1a2e', fontVariantNumeric: 'tabular-nums' }}>
-                      {stake.status === 'pending' ? (
-                        <span style={{ color: '#d97706', fontSize: '14px', background: '#fef3c7', padding: '4px 8px', borderRadius: '4px' }}>Pending Approval</span>
-                      ) : stake.status === 'matured' ? (
-                        <button 
-                          onClick={() => handleCashOut(stake._id)} 
-                          style={{ background: '#009393', color: 'white', border: 'none', borderRadius: '6px', padding: '4px 12px', cursor: 'pointer', fontWeight: 600, fontSize: '13px' }}
-                        >
-                          Cash Out
-                        </button>
-                      ) : (
-                        formatCountdown(stake.completesAt)
-                      )}
-                    </div>
+                    <div style={{ color: '#64748b', fontSize: '12px', fontWeight: 600, marginBottom: '4px' }}>Status</div>
+                    {stake.status === 'pending' ? (
+                      <span style={{ color: '#d97706', fontSize: '14px', background: '#fef3c7', padding: '4px 10px', borderRadius: '6px', fontWeight: 700, display: 'inline-block' }}>Pending Approval</span>
+                    ) : (
+                      <CountdownTimer maturityDate={stake.completesAt} />
+                    )}
                   </div>
                 </div>
 
@@ -152,8 +108,8 @@ export default function MyStakes() {
                     ${(stake.amount + (stake.accruedRewards || 0)).toFixed(2)}
                   </td>
                   <td style={{ padding: '16px' }}>
-                    <span style={{ background: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700 }}>
-                      Completed
+                    <span style={{ background: '#dcfce7', color: '#15803d', padding: '4px 10px', borderRadius: '6px', fontSize: '12px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                      <CheckCircle size={14} /> Complete
                     </span>
                   </td>
                 </tr>

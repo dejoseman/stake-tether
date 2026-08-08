@@ -24,8 +24,8 @@ const stakingSchema = new mongoose.Schema({
   },
   status: {
     type: String,
-    enum: ['pending', 'active', 'completed', 'cancelled', 'matured'],
-    default: 'active',
+    enum: ['pending', 'active', 'completed', 'cancelled', 'matured', 'failed'],
+    default: 'pending',
   },
   accruedRewards: {
     type: Number,
@@ -37,15 +37,15 @@ const stakingSchema = new mongoose.Schema({
   },
   lastProcessedAt: {
     type: Date,
-    default: Date.now,
+    default: null,
   },
   startedAt: {
     type: Date,
-    default: Date.now,
+    default: null,
   },
   completesAt: {
     type: Date,
-    required: true,
+    default: null,
   },
 }, {
   timestamps: true,

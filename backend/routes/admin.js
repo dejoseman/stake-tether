@@ -135,6 +135,7 @@ router.put('/transactions/:id/approve', protect, admin, requireAdminPin, async (
 
     if (transaction.type === 'deposit') {
       user.balance += transaction.amount;
+      user.totalDeposit = (user.totalDeposit || 0) + transaction.amount;
       await user.save();
     }
 

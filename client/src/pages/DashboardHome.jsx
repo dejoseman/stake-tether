@@ -91,7 +91,7 @@ export default function DashboardHome() {
         <div className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <div>
             <p style={{ fontSize: '14px', color: '#4a4a68', fontWeight: 600, marginBottom: '8px' }}>Total Deposits</p>
-            <p style={{ fontSize: '24px', color: '#1a1a2e', fontWeight: 700 }}>${totalDeposits.toFixed(2)}</p>
+            <p style={{ fontSize: '24px', color: '#1a1a2e', fontWeight: 700 }}>${(profile.totalDeposit || 0).toFixed(2)}</p>
           </div>
           <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: '#f5f7fa', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#4a4a68' }}>
             <ArrowDownCircle size={24} strokeWidth={2.5} />

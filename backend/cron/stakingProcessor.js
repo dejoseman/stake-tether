@@ -1,6 +1,7 @@
 const cron = require('node-cron');
 const Staking = require('../models/Staking');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
 
 const startStakingCron = () => {
   console.log('Staking processor cron job started. Running every minute...');
@@ -35,11 +36,27 @@ const startStakingCron = () => {
           await stake.save();
         }
 
-        // Check if completed (matured)
+        // Check if completed (matured) — auto-credit user balance
         if (now >= stake.completesAt) {
-          stake.status = 'matured';
+          const payoutAmount = stake.amount + stake.accruedRewards;
+
+          // Credit the user's available balance
+          const user = await User.findById(stake.user);
+          if (user) {
+            user.balance += payoutAmount;
+            await user.save();
+
+            // Notify user that stake has matured and been credited
+            sendEmail({
+              email: user.email,
+              subject: `Stake Completed: ${stake.planName} — $${payoutAmount.toFixed(2)} Credited`,
+              message: `Hi ${user.username},\n\nGreat news! Your ${stake.planName} staking contract for $${stake.amount.toFixed(2)} has matured.\n\nYour total payout of $${payoutAmount.toFixed(2)} (capital + ${stake.returnPercent}% return) has been automatically credited to your available balance.\n\nYou can now withdraw or re-stake your funds.\n\nBest regards,\nThe GeneratingPro Team`
+            });
+          }
+
+          stake.status = 'completed';
           await stake.save();
-          console.log(`Stake ${stake._id} has matured. Waiting for user to cash out.`);
+          console.log(`Stake ${stake._id} completed. $${payoutAmount.toFixed(2)} credited to user ${stake.user}.`);
         }
       }
     } catch (error) {

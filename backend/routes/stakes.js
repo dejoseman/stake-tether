@@ -65,11 +65,7 @@ router.post('/purchase', protect, async (req, res) => {
     user.balance -= amount;
     await user.save();
 
-    // Calculate completion time
-    const completesAt = new Date();
-    completesAt.setHours(completesAt.getHours() + plan.durationHours);
-
-    // Create stake
+    // Create stake as pending — completesAt is set when admin approves
     const stake = await Staking.create({
       user: req.user._id,
       planName,

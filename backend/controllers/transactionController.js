@@ -2,7 +2,7 @@ const Transaction = require('../models/Transaction');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 
-const ADMIN_EMAIL = 'generatingpro.support@gmail.com';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'support@generatingpro.com';
 
 // @desc    Get user transactions
 // @route   GET /api/transactions

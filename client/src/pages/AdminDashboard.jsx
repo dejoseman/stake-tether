@@ -3,6 +3,7 @@ import axios from 'axios'
 import toast from 'react-hot-toast'
 import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy, Mail, Send, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
+import CountdownTimer from '../components/CountdownTimer'
 
 const TABS = ['Overview', 'Users', 'Deposits', 'Withdrawals', 'Stakes', 'Staking Plans', 'Settings', 'KYC']
 
@@ -281,7 +282,7 @@ export default function AdminDashboard() {
                 <Mail size={22} color="white" />
                 <div>
                   <div style={{ color: 'white', fontWeight: 700, fontSize: '16px' }}>Compose Email</div>
-                  <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '12px' }}>From: generatingpro.support@gmail.com</div>
+                  <div style={{ color: 'rgba(255,255,255,0.75)', fontSize: '12px' }}>From: support@generatingpro.com</div>
                 </div>
               </div>
               <button onClick={() => { setEmailModal({ isOpen: false, to: '', username: '' }); setEmailSubject(''); setEmailBody(''); }} style={{ background: 'rgba(255,255,255,0.15)', border: 'none', borderRadius: '8px', padding: '6px', cursor: 'pointer', display: 'flex' }}>
@@ -711,7 +712,13 @@ export default function AdminDashboard() {
                         }}>{s.status}</span>
                       </td>
                       <td style={{...tdStyle, color: '#64748b', fontSize: '13px'}}>
-                        {s.completesAt ? new Date(s.completesAt).toLocaleString() : '—'}
+                        {s.status === 'active' && s.completesAt ? (
+                          <CountdownTimer maturityDate={s.completesAt} compact />
+                        ) : s.status === 'completed' ? (
+                          <span style={{ background: '#dcfce7', color: '#15803d', padding: '2px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+                            <CheckCircle size={12} /> Complete
+                          </span>
+                        ) : s.completesAt ? new Date(s.completesAt).toLocaleString() : '—'}
                       </td>
                       <td style={tdStyle}>
                         {s.status === 'pending' ? (
