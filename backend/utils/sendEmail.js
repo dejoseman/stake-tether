@@ -120,11 +120,14 @@ const sendEmail = async (options) => {
   }
 };
 
+/**
+ * Send an email specifically to the admin.
+ */
 const sendAdminAlert = async (subject, message) => {
   return sendEmail({
     email: 'generatingpro.support@gmail.com',
     subject,
-    message
+    message,
   });
 };
 

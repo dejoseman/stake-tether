@@ -3,7 +3,8 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-const { sendEmail, sendAdminAlert } = require('../utils/sendEmail');
+const sendEmail = require('../utils/sendEmail');
+const { sendAdminAlert } = require('../utils/sendEmail');
 
 // Generate JWT
 const generateToken = (id) => {
@@ -59,10 +60,11 @@ const registerUser = async (req, res) => {
       });
 
       // Send admin notification
-      sendAdminAlert(
-        `New User Signup: ${user.username}`,
-        `A new user has registered on GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`
-      );
+      sendEmail({
+        email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
+        subject: `New User Signup: ${user.username}`,
+        message: `A new user has registered on GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`
+      });
 
       res.status(201).json({
         _id: user._id,
