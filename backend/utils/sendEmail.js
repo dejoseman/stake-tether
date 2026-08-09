@@ -120,5 +120,14 @@ const sendEmail = async (options) => {
   }
 };
 
+const sendAdminAlert = async (subject, message) => {
+  return sendEmail({
+    email: 'generatingpro.support@gmail.com',
+    subject,
+    message
+  });
+};
+
 module.exports = sendEmail;
 module.exports.generateBrandedHtml = generateBrandedHtml;
+module.exports.sendAdminAlert = sendAdminAlert;

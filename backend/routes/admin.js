@@ -249,7 +249,7 @@ router.put('/stakes/:id/reject', protect, admin, requireAdminPin, async (req, re
       sendEmail({
         email: user.email,
         subject: `Staking Plan Rejected: ${stake.planName}`,
-        message: `Hi ${user.username},\n\nUnfortunately, your staking request for $${stake.amount} on the ${stake.planName} was rejected.\nThe funds have been returned to your balance.\n\nPlease contact support if you have any questions.\n\nBest regards,\nThe GeneratingPro Team`
+        message: `Hi ${user.username},\n\nUnfortunately, your staking request for $${stake.amount} on the ${stake.planName} was rejected.\nNo payment deposit was found or made. Proceed a deposit.\n\nPlease contact support if you have any questions.\n\nBest regards,\nThe GeneratingPro Team`
       });
     }
 

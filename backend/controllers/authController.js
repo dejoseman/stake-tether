@@ -3,7 +3,7 @@ const User = require('../models/User');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail, sendAdminAlert } = require('../utils/sendEmail');
 
 // Generate JWT
 const generateToken = (id) => {
@@ -59,11 +59,10 @@ const registerUser = async (req, res) => {
       });
 
       // Send admin notification
-      sendEmail({
-        email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
-        subject: `New User Signup: ${user.username}`,
-        message: `A new user has registered on GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`
-      });
+      sendAdminAlert(
+        `New User Signup: ${user.username}`,
+        `A new user has registered on GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`
+      );
 
       res.status(201).json({
         _id: user._id,
@@ -100,11 +99,10 @@ const loginUser = async (req, res) => {
     if (user && (await user.matchPassword(password))) {
       // Send admin notification about login
       const ip = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-      sendEmail({
-        email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
-        subject: `User Login: ${user.username}`,
-        message: `A user has just logged in to GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>IP Address:</strong> ${ip}\n<strong>Time:</strong> ${new Date().toLocaleString()}\n\nMonitor their activity in the Admin Panel if necessary.`
-      });
+      sendAdminAlert(
+        `User Login: ${user.username}`,
+        `A user has just logged in to GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>IP Address:</strong> ${ip}\n<strong>Time:</strong> ${new Date().toLocaleString()}\n\nMonitor their activity in the Admin Panel if necessary.`
+      );
 
       res.json({
         _id: user._id,

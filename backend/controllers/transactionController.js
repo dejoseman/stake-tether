@@ -1,6 +1,6 @@
 const Transaction = require('../models/Transaction');
 const User = require('../models/User');
-const sendEmail = require('../utils/sendEmail');
+const { sendEmail, sendAdminAlert } = require('../utils/sendEmail');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'support@generatingpro.com';
 
@@ -50,11 +50,10 @@ const createDeposit = async (req, res) => {
       });
 
       // Notify admin
-      sendEmail({
-        email: ADMIN_EMAIL,
-        subject: `New Deposit Request — $${amount} from ${user.username}`,
-        message: `A new deposit request has been initiated.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Network:</strong> ${network}\n<strong>Status:</strong> Pending\n\nPlease review this deposit in the Admin Panel.`
-      });
+      sendAdminAlert(
+        `New Deposit Request — $${amount} from ${user.username}`,
+        `A new deposit request has been initiated.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Network:</strong> ${network}\n<strong>Status:</strong> Pending\n\nPlease review this deposit in the Admin Panel.`
+      );
     }
 
     res.status(201).json(transaction);
@@ -118,15 +117,14 @@ const createWithdrawal = async (req, res) => {
     sendEmail({
       email: user.email,
       subject: 'Withdrawal Request Received — GeneratingPro',
-      message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount} to ${network} address: ${address}.\n\nYour request is currently pending admin approval. You will receive another email once it has been processed.\n\nIf you did not initiate this request, please contact our support team immediately.`
+      message: `Hi ${user.username},\n\nWe have received your withdrawal request for $${amount} to ${network} address: ${address}.\n\nYour request is currently pending and being review by system. Upon approval you’ll be notified once processed.\n\nIf you did not initiate this request, please contact our support team immediately.`
     });
 
     // Notify admin
-    sendEmail({
-      email: ADMIN_EMAIL,
-      subject: `New Withdrawal Request — $${amount} from ${user.username}`,
-      message: `A new withdrawal request has been submitted.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Network:</strong> ${network}\n<strong>Destination Address:</strong> ${address}\n<strong>Status:</strong> Pending\n\nPlease review and approve/reject this withdrawal in the Admin Panel.`
-    });
+    sendAdminAlert(
+      `New Withdrawal Request — $${amount} from ${user.username}`,
+      `A new withdrawal request has been submitted.\n\n<strong>User:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not set'}\n<strong>Amount:</strong> $${amount}\n<strong>Network:</strong> ${network}\n<strong>Destination Address:</strong> ${address}\n<strong>Status:</strong> Pending\n\nPlease review and approve/reject this withdrawal in the Admin Panel.`
+    );
 
     res.status(201).json(transaction);
   } catch (error) {
