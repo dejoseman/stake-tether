@@ -180,7 +180,7 @@ router.put('/transactions/:id/reject', protect, admin, requireAdminPin, async (r
       sendEmail({
         email: emailUser.email,
         subject: `Transaction Rejected: $${transaction.amount}`,
-        message: `Hi ${emailUser.username},\n\nUnfortunately, your ${transaction.type} request for $${transaction.amount} was rejected by the administration.\nIf this was a withdrawal, the funds have been returned to your balance.\n\nPlease contact support for more details.\n\nBest regards,\nThe GeneratingPro Team`
+        message: `Hi ${emailUser.username},\n\nUnfortunately, your ${transaction.type} request for $${transaction.amount} was rejected.\nIf this was a withdrawal, the funds have been returned to your balance.\n\nPlease contact support for more details.\n\nBest regards,\nThe GeneratingPro Team`
       });
     }
 
