@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import axios from 'axios'
+import api, { errorMessage } from '../api/client'
 import toast from 'react-hot-toast'
 
 export default function Transfer() {
@@ -12,16 +12,14 @@ export default function Transfer() {
     setLoading(true)
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.post('/api/transactions/transfer', 
-        { recipient, amount: Number(amount) },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.post('/transactions/transfer', 
+        { recipient, amount: Number(amount) }
       )
       toast.success(`Successfully transferred ${amount} USDt to ${recipient}`)
       setRecipient('')
       setAmount('')
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Transfer failed')
+      toast.error(errorMessage(err, 'Transfer failed'))
     } finally {
       setLoading(false)
     }

@@ -1,26 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Home, ArrowDownCircle, ArrowUpCircle, List, ArrowRightLeft, UserCircle, ShieldAlert, TrendingUp, Clock } from 'lucide-react'
-import axios from 'axios'
 import TetherLogo from './TetherLogo'
+import { useAuth } from './AuthContext'
 
 export default function Sidebar({ onLinkClick }) {
   const location = useLocation()
-  const [isAdmin, setIsAdmin] = useState(false)
+  // Was its own /auth/profile request on every mount, duplicating the one
+  // DashboardLayout already made. Both now read from the shared auth context.
+  const { isAdmin } = useAuth()
 
-  useEffect(() => {
-    const checkAdmin = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/auth/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        if (res.data.role === 'admin') setIsAdmin(true)
-      } catch {}
-    }
-    checkAdmin()
-  }, [])
-  
   const navItems = [
     { to: '/dashboard', label: 'Home', icon: <Home size={24} strokeWidth={2.5} /> },
     { to: '/stake', label: 'Purchase Stake', icon: <TrendingUp size={24} strokeWidth={2.5} /> },

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import axios from 'axios'
+import api, { errorMessage } from '../api/client'
 import toast from 'react-hot-toast'
 import { ArrowLeft } from 'lucide-react'
 import TetherLogo from '../components/TetherLogo'
@@ -76,11 +76,11 @@ export default function Signup() {
     }
 
     try {
-      await axios.post('/api/auth/register', formData)
+      await api.post('/auth/register', formData)
       toast.success('Account created successfully! Please log in.')
       navigate('/login')
     } catch (err) {
-      toast.error(err.response?.data?.msg || err.response?.data?.errors?.[0]?.msg || 'An error occurred during registration.')
+      toast.error(errorMessage(err) || err.response?.data?.errors?.[0]?.msg || 'An error occurred during registration.')
     }
   }
 

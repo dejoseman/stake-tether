@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: generatingpro-app
+    container_name: generatingpro-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - MONGODB_URI=${MONGODB_URI}
+      - JWT_SECRET=${JWT_SECRET}
+      - APP_URL=${APP_URL}
+      - KYC_UPLOAD_DIR=/app/uploads
+      - RUN_CRON=true
+      - TRUST_PROXY_HOPS=${TRUST_PROXY_HOPS:-1}
+    volumes:
+      - kyc-data:/app/uploads
+    # depends_on:
+    #   - mongo
+
+  # Optional: Local MongoDB if not using Atlas/external MongoDB
+  # mongo:
+  #   image: mongo:6
+  #   container_name: generatingpro-mongo
+  #   restart: unless-stopped
+  #   volumes:
+  #     - db-data:/data/db
+
+volumes:
+  kyc-data:
+  # db-data:

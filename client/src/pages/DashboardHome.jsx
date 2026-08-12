@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import axios from 'axios'
+import api from '../api/client'
 import { UserCircle2, DollarSign, ArrowDownCircle, ArrowUpCircle } from 'lucide-react'
 
 export default function DashboardHome() {
@@ -10,10 +10,7 @@ export default function DashboardHome() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/auth/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const res = await api.get('/auth/profile')
         setProfile(res.data)
       } catch (err) {
         console.error(err)
@@ -22,10 +19,7 @@ export default function DashboardHome() {
     
     const fetchTransactions = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/transactions', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const res = await api.get('/transactions')
         setTransactions(res.data)
       } catch (err) {
         console.error(err)

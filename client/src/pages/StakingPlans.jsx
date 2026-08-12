@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/client'
 import { Link } from 'react-router-dom'
 import { Shield, Zap, Bot, Users, BarChart3, RefreshCw, CheckCircle2 } from 'lucide-react'
 
@@ -26,7 +26,7 @@ export default function StakingPlans() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await axios.get('/api/stakes/plans')
+        const res = await api.get('/stakes/plans')
         const plansWithStyles = res.data.map((plan, index) => ({
           ...plan,
           range: `$${plan.min} - ${plan.max === 9999999 ? 'Unlimited' : '$' + plan.max.toLocaleString()}`,

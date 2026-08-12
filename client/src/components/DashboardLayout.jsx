@@ -1,36 +1,19 @@
-import React, { useState, useEffect } from 'react'
-import { Outlet, Link, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import React, { useState } from 'react'
+import { Outlet, Link } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import TetherLogo from './TetherLogo'
 import { CheckCircle, Clock, XCircle, LogOut, Menu } from 'lucide-react'
+import { useAuth } from './AuthContext'
 
 export default function DashboardLayout() {
-  const navigate = useNavigate()
-  const [kycStatus, setKycStatus] = useState('unverified')
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
+  // RequireAuth wraps this layout, so by the time it renders the user is
+  // loaded and authenticated. No local fetch, and no silent no-op when the
+  // token is missing — the guard handles that case.
+  const { user, logout } = useAuth()
+  const kycStatus = user?.kycStatus || 'unverified'
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem('token')
-        if (!token) return
-        const res = await axios.get('/api/auth/profile', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        setKycStatus(res.data.kycStatus)
-      } catch (err) {
-        console.error('Failed to fetch profile', err)
-      }
-    }
-    fetchUser()
-  }, [])
-
-  const handleLogout = () => {
-    // Clear token and redirect
-    localStorage.removeItem('token')
-    navigate('/login')
-  }
+  const handleLogout = () => logout()
 
   return (
     <div className="dashboard-layout">

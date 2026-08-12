@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/client'
 import toast from 'react-hot-toast'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 
@@ -16,8 +16,7 @@ export default function Deposit() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/settings', { headers: { Authorization: `Bearer ${token}` } })
+        const res = await api.get('/settings')
         if (res.data?.cryptoNetworks?.length > 0) {
           setNetworks(res.data.cryptoNetworks)
           setNetwork(res.data.cryptoNetworks[0].name)

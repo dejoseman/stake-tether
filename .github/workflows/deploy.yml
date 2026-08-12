@@ -11,35 +11,44 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Use Node.js 18.x
-      uses: actions/setup-node@v3
-      with:
-        node-version: 18.x
-        cache: 'npm'
-        cache-dependency-path: '**/package-lock.json'
-        
-    - name: Install Backend Dependencies
-      run: npm ci
-      
-    - name: Install Frontend Dependencies
-      working-directory: ./client
-      run: npm ci
-      
-    - name: Build Frontend
-      working-directory: ./client
-      run: npm run build
-      
-    # Note: Add actual test scripts here once tests are written
-    - name: Run Tests
-      run: npm test
+      - uses: actions/checkout@v4
 
-  # Example deployment job (requires configuration on your hosting provider)
-  # deploy:
-  #   needs: build-and-test
-  #   runs-on: ubuntu-latest
-  #   if: github.ref == 'refs/heads/main'
-  #   steps:
-  #     - name: Deploy to Production
-  #       run: echo "Deployment script goes here (e.g. AWS Elastic Beanstalk, Heroku, or DigitalOcean App Platform)"
+      - name: Use Node.js 22.x
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.x
+          cache: 'npm'
+          cache-dependency-path: '**/package-lock.json'
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Install frontend dependencies
+        working-directory: ./client
+        run: npm ci
+
+      - name: Lint frontend
+        working-directory: ./client
+        run: npm run lint
+
+      - name: Build frontend
+        working-directory: ./client
+        run: npm run build
+
+      - name: Run backend tests
+        run: npm test
+        env:
+          NODE_ENV: test
+          # Tests use an in-memory MongoDB, but the app still validates that a
+          # credible JWT secret is present.
+          JWT_SECRET: test-secret-that-is-definitely-long-enough-for-ci-use
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+  # Deployment is intentionally left unconfigured rather than sitting here
+  # commented out and pretending to work. Whatever is currently in production
+  # was not shipped by this pipeline.
+  #
+  # To wire it up, add a job here that runs on push to main after
+  # build-and-test, using your host's deploy action and repository secrets.

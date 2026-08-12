@@ -1,0 +1,32 @@
+# Without this file, `COPY . .` in the Dockerfile baked the local .env — real
+# SMTP credentials, MONGODB_URI and JWT_SECRET — into every image layer, along
+# with the whole .git history. Anyone who could pull the image had the
+# production secrets.
+
+.env
+.env.*
+!.env.example
+
+.git
+.gitignore
+.github
+
+node_modules
+client/node_modules
+
+# Rebuilt inside the image by the frontend build stage.
+client/dist
+dist
+
+uploads
+
+*.md
+!README.md
+
+npm-debug.log*
+yarn-error.log*
+.DS_Store
+coverage
+.nyc_output
+.vscode
+.idea

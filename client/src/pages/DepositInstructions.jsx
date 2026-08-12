@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { Copy, AlertCircle, CheckCircle2, Save } from 'lucide-react';
 import toast from 'react-hot-toast';
-import axios from 'axios';
+import api, { errorMessage } from '../api/client'
 
 export default function DepositInstructions() {
   const location = useLocation();
@@ -25,16 +25,14 @@ export default function DepositInstructions() {
   const handleSaveDeposit = async () => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem('token');
-      await axios.post('/api/transactions/deposit', 
-        { amount: Number(amount), network },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.post('/transactions/deposit', 
+        { amount: Number(amount), network }
       );
       
       setIsSaved(true);
       toast.success('Deposit saved successfully! Admin has been notified.');
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Failed to save deposit.');
+      toast.error(errorMessage(err, 'Failed to save deposit.'));
     } finally {
       setIsSaving(false);
     }

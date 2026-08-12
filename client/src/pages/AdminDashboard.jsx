@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api, { errorMessage } from '../api/client'
 import toast from 'react-hot-toast'
 import { ShieldAlert, Users, Activity, DollarSign, Lock, Unlock, CheckCircle, XCircle, TrendingUp, Settings as SettingsIcon, Search, Filter, Clock, AlertTriangle, Eye, Copy, Mail, Send, X } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, ResponsiveContainer } from 'recharts'
@@ -20,11 +20,13 @@ export default function AdminDashboard() {
   const [editUserId, setEditUserId] = useState(null)
   const [editBalance, setEditBalance] = useState('')
   const [editLimit, setEditLimit] = useState('')
+  const [editReason, setEditReason] = useState('')
 
   // Settings Edit
   const [networkInput, setNetworkInput] = useState('')
   const [networkAddressInput, setNetworkAddressInput] = useState('')
   const [newPin, setNewPin] = useState('')
+  const [pinPassword, setPinPassword] = useState('')
 
   // Admin PIN Modal
   const [pinModal, setPinModal] = useState({ isOpen: false, actionFn: null })
@@ -42,16 +44,15 @@ export default function AdminDashboard() {
   const [emailBody, setEmailBody] = useState('')
   const [isSendingEmail, setIsSendingEmail] = useState(false)
 
-  const headers = { Authorization: `Bearer ${localStorage.getItem('token')}` }
-
+  
   const fetchData = async () => {
     try {
       const [usersRes, txRes, stakesRes, settingsRes, plansRes] = await Promise.all([
-        axios.get('/api/admin/users', { headers }),
-        axios.get('/api/admin/transactions', { headers }),
-        axios.get('/api/admin/stakes', { headers }),
-        axios.get('/api/settings', { headers }),
-        axios.get('/api/admin/staking-plans', { headers }),
+        api.get('/admin/users'),
+        api.get('/admin/transactions'),
+        api.get('/admin/stakes'),
+        api.get('/settings'),
+        api.get('/admin/staking-plans'),
       ])
       setUsers(usersRes.data)
       setTransactions(txRes.data)
@@ -79,41 +80,50 @@ export default function AdminDashboard() {
     e.preventDefault()
     if (!adminPin) return toast.error('PIN is required')
     
-    // Inject PIN into headers for this specific request
-    const authHeaders = { ...headers, 'x-admin-pin': adminPin }
+    // Only the PIN needs to be added here — the shared api client attaches the
+    // Authorization header to every request via its interceptor.
+    const authHeaders = { 'x-admin-pin': adminPin }
     setPinModal({ isOpen: false, actionFn: null })
+    setAdminPin('')
 
     try {
       await pinModal.actionFn(authHeaders)
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Action failed')
+      toast.error(errorMessage(err, 'Action failed'))
     }
   }
 
   // Admin Actions
   const toggleLock = (userId, currentLockState) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/users/${userId}/lock`, {}, { headers: authHeaders })
+      await api.put(`/admin/users/${userId}/lock`, {}, { headers: authHeaders })
       toast.success(`User ${currentLockState ? 'unlocked' : 'locked'} successfully`)
       fetchData()
     })
   }
 
   const saveUserEdits = (userId) => {
+    // The API now requires a written justification for any manual balance
+    // change, so it lands in the admin audit trail with a reason attached.
+    if (!editReason.trim() || editReason.trim().length < 5) {
+      return toast.error('Please give a reason (min 5 characters) for this adjustment')
+    }
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/users/${userId}/balance`, { 
+      await api.put(`/admin/users/${userId}/balance`, {
         balance: Number(editBalance),
-        dailyWithdrawalLimit: Number(editLimit)
+        dailyWithdrawalLimit: Number(editLimit),
+        reason: editReason.trim(),
       }, { headers: authHeaders })
       toast.success('User updated successfully')
       setEditUserId(null)
+      setEditReason('')
       fetchData()
     })
   }
 
   const approveTx = (txId) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/transactions/${txId}/approve`, {}, { headers: authHeaders })
+      await api.put(`/admin/transactions/${txId}/approve`, {}, { headers: authHeaders })
       toast.success('Transaction approved')
       fetchData()
     })
@@ -121,7 +131,7 @@ export default function AdminDashboard() {
 
   const rejectTx = (txId) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/transactions/${txId}/reject`, {}, { headers: authHeaders })
+      await api.put(`/admin/transactions/${txId}/reject`, {}, { headers: authHeaders })
       toast.success('Transaction rejected')
       fetchData()
     })
@@ -129,7 +139,7 @@ export default function AdminDashboard() {
 
   const approveStake = (stakeId) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/stakes/${stakeId}/approve`, {}, { headers: authHeaders })
+      await api.put(`/admin/stakes/${stakeId}/approve`, {}, { headers: authHeaders })
       toast.success('Stake approved and activated')
       fetchData()
     })
@@ -137,7 +147,7 @@ export default function AdminDashboard() {
 
   const rejectStake = (stakeId) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/stakes/${stakeId}/reject`, {}, { headers: authHeaders })
+      await api.put(`/admin/stakes/${stakeId}/reject`, {}, { headers: authHeaders })
       toast.success('Stake rejected and refunded')
       fetchData()
     })
@@ -146,7 +156,7 @@ export default function AdminDashboard() {
   // KYC Actions
   const approveKyc = (userId) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/kyc/${userId}/approve`, {}, { headers: authHeaders })
+      await api.put(`/admin/kyc/${userId}/approve`, {}, { headers: authHeaders })
       toast.success('KYC Approved')
       fetchData()
     })
@@ -154,7 +164,7 @@ export default function AdminDashboard() {
 
   const rejectKyc = (userId, note) => {
     requirePin(async (authHeaders) => {
-      await axios.put(`/api/admin/kyc/${userId}/reject`, { rejectionNote: note }, { headers: authHeaders })
+      await api.put(`/admin/kyc/${userId}/reject`, { rejectionNote: note }, { headers: authHeaders })
       toast.success('KYC Rejected')
       setRejectModal({ isOpen: false, userId: null })
       setRejectionNote('')
@@ -165,13 +175,48 @@ export default function AdminDashboard() {
   // Settings Actions
   const setupPin = async (e) => {
     e.preventDefault()
-    if (newPin.length < 4) return toast.error('PIN must be at least 4 characters')
+    if (newPin.length < 6) return toast.error('PIN must be at least 6 characters')
+    // Changing the PIN now requires the account password. Without that, a
+    // stolen session token was enough to set a new PIN and then satisfy every
+    // PIN check with it — which defeated the point of having one.
+    if (!pinPassword) return toast.error('Your account password is required')
     try {
-      await axios.post('/api/admin/pin', { pin: newPin }, { headers })
+      await api.post('/admin/pin', { pin: newPin, currentPassword: pinPassword })
       toast.success('Admin PIN set successfully!')
       setNewPin('')
+      setPinPassword('')
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Failed to set PIN')
+      toast.error(errorMessage(err, 'Failed to set PIN'))
+    }
+  }
+
+  /**
+   * Open a user's KYC document.
+   *
+   * These are no longer reachable by URL — the public /uploads mount that
+   * served every passport and ID to the open internet has been removed. The
+   * document is fetched as an authenticated blob and shown in a new tab.
+   */
+  const viewKycDocument = async (userId, username) => {
+    try {
+      const res = await api.get(`/admin/kyc/${userId}/document`, { responseType: 'blob' })
+      const url = URL.createObjectURL(res.data)
+      const win = window.open(url, '_blank', 'noopener,noreferrer')
+      if (!win) toast.error('Please allow pop-ups to view KYC documents')
+      // Release the object URL once the browser has had time to load it.
+      setTimeout(() => URL.revokeObjectURL(url), 60000)
+    } catch (err) {
+      // A blob-typed error body has to be read back as text before we can
+      // pull the message out of it.
+      if (err.response?.data instanceof Blob) {
+        try {
+          const text = await err.response.data.text()
+          return toast.error(JSON.parse(text).msg || `Could not load document for ${username}`)
+        } catch {
+          return toast.error(`Could not load document for ${username}`)
+        }
+      }
+      toast.error(errorMessage(err, `Could not load document for ${username}`))
     }
   }
 
@@ -182,7 +227,7 @@ export default function AdminDashboard() {
     }
     const newNetworks = [...settings.cryptoNetworks, { name: networkInput.trim(), address: networkAddressInput.trim() }]
     requirePin(async (authHeaders) => {
-      await axios.put('/api/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
+      await api.put('/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
       toast.success('Network added')
       setNetworkInput('')
       setNetworkAddressInput('')
@@ -193,7 +238,7 @@ export default function AdminDashboard() {
   const removeNetwork = (netNameToRemove) => {
     const newNetworks = settings.cryptoNetworks.filter(n => n.name !== netNameToRemove)
     requirePin(async (authHeaders) => {
-      await axios.put('/api/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
+      await api.put('/settings', { cryptoNetworks: newNetworks }, { headers: authHeaders })
       toast.success('Network removed')
       fetchData()
     })
@@ -343,18 +388,24 @@ export default function AdminDashboard() {
                 <button
                   disabled={isSendingEmail || !emailSubject.trim() || !emailBody.trim()}
                   onClick={async () => {
-                    setIsSendingEmail(true);
-                    try {
-                      await axios.post('/api/admin/send-email', { to: emailModal.to, subject: emailSubject, message: emailBody }, { headers });
-                      toast.success(`Email sent to ${emailModal.username}`);
-                      setEmailModal({ isOpen: false, to: '', username: '' });
-                      setEmailSubject('');
-                      setEmailBody('');
-                    } catch (err) {
-                      toast.error(err.response?.data?.msg || 'Failed to send email');
-                    } finally {
-                      setIsSendingEmail(false);
-                    }
+                    // Sending mail from the platform's verified domain is now
+                    // PIN-gated and audited, so route it through requirePin.
+                    requirePin(async (authHeaders) => {
+                      setIsSendingEmail(true);
+                      try {
+                        await api.post(
+                          '/admin/send-email',
+                          { to: emailModal.to, subject: emailSubject, message: emailBody },
+                          { headers: authHeaders }
+                        );
+                        toast.success(`Email sent to ${emailModal.username}`);
+                        setEmailModal({ isOpen: false, to: '', username: '' });
+                        setEmailSubject('');
+                        setEmailBody('');
+                      } finally {
+                        setIsSendingEmail(false);
+                      }
+                    });
                   }}
                   style={{ flex: 1, padding: '12px', background: (!emailSubject.trim() || !emailBody.trim()) ? '#94a3b8' : '#009393', color: 'white', border: 'none', borderRadius: '10px', fontWeight: 600, cursor: (!emailSubject.trim() || !emailBody.trim()) ? 'not-allowed' : 'pointer', fontSize: '14px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                 >
@@ -484,7 +535,17 @@ export default function AdminDashboard() {
                       </td>
                       <td style={tdStyle}>
                         {isEditing ? (
-                          <input type="number" value={editLimit} onChange={e => setEditLimit(e.target.value)} style={inputStyle} />
+                          <>
+                            <input type="number" value={editLimit} onChange={e => setEditLimit(e.target.value)} style={inputStyle} />
+                            {/* Required by the API and written to the audit log. */}
+                            <input
+                              type="text"
+                              value={editReason}
+                              onChange={e => setEditReason(e.target.value)}
+                              placeholder="Reason for change (required)"
+                              style={{ ...inputStyle, marginTop: '6px' }}
+                            />
+                          </>
                         ) : (
                           <span style={{ color: '#475569' }}>${user.dailyWithdrawalLimit || 1000}</span>
                         )}
@@ -572,9 +633,13 @@ export default function AdminDashboard() {
                       </div>
                       
                       {u.kycDocument && (
-                        <a href={u.kycDocument} target="_blank" rel="noreferrer" style={{ color: '#0ea5e9', fontWeight: 600, fontSize: '13px', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}>
+                        <button
+                          type="button"
+                          onClick={() => viewKycDocument(u._id, u.username)}
+                          style={{ background: 'none', border: 'none', padding: 0, cursor: 'pointer', color: '#0ea5e9', fontWeight: 600, fontSize: '13px', display: 'inline-flex', alignItems: 'center', gap: '4px', marginTop: '8px' }}
+                        >
                           <Eye size={14} /> View Document
-                        </a>
+                        </button>
                       )}
 
                       {u.kycStatus === 'rejected' && u.kycRejectionNote && (
@@ -779,19 +844,39 @@ export default function AdminDashboard() {
                 <h2 style={{ fontSize: '20px' }}>Security Configuration</h2>
               </div>
               <p style={{ fontSize: '14px', color: '#64748b', marginBottom: '24px' }}>
-                Set up an Admin PIN. This PIN is required to approve withdrawals, lock users, and edit balances.
+                Set up an Admin PIN. This PIN is required to approve withdrawals, lock users,
+                edit balances, change deposit addresses, and view KYC documents.
               </p>
               <form onSubmit={setupPin}>
                 <div style={{ marginBottom: '16px' }}>
                   <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>New Admin PIN</label>
                   <input
                     type="password"
-                    placeholder="Enter a secure PIN"
+                    autoComplete="new-password"
+                    placeholder="At least 6 characters"
                     value={newPin}
                     onChange={e => setNewPin(e.target.value)}
                     style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
                     required
+                    minLength={6}
                   />
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ display: 'block', fontSize: '13px', fontWeight: 600, marginBottom: '8px' }}>
+                    Your account password
+                  </label>
+                  <input
+                    type="password"
+                    autoComplete="current-password"
+                    placeholder="Confirm it's really you"
+                    value={pinPassword}
+                    onChange={e => setPinPassword(e.target.value)}
+                    style={{ width: '100%', padding: '12px', borderRadius: '8px', border: '1px solid #cbd5e1' }}
+                    required
+                  />
+                  <p style={{ fontSize: '12px', color: '#64748b', marginTop: '6px' }}>
+                    Required so a stolen session alone can&apos;t set a new PIN.
+                  </p>
                 </div>
                 <button type="submit" className="btn btn--primary" style={{ width: '100%' }}>Set Admin PIN</button>
               </form>

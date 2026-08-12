@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api, { errorMessage } from '../api/client'
 import toast from 'react-hot-toast'
 import { UserCircle, Mail, Shield, CheckCircle, XCircle, Clock, UploadCloud, ShieldCheck, Copy, Users, Globe, Wallet, AlertTriangle } from 'lucide-react'
 
@@ -19,10 +19,9 @@ export default function Profile() {
 
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem('token')
       const [profileRes, refRes] = await Promise.all([
-        axios.get('/api/auth/profile', { headers: { Authorization: `Bearer ${token}` } }),
-        axios.get('/api/auth/referrals', { headers: { Authorization: `Bearer ${token}` } }).catch(() => ({ data: { referralCode: '', totalReferred: 0, totalEarned: 0 } }))
+        api.get('/auth/profile'),
+        api.get('/auth/referrals').catch(() => ({ data: { referralCode: '', totalReferred: 0, totalEarned: 0 } }))
       ])
       setProfile(profileRes.data)
       setReferralStats(refRes.data)
@@ -48,19 +47,15 @@ export default function Profile() {
 
     setUploading(true)
     try {
-      const token = localStorage.getItem('token')
-      await axios.post('/api/kyc/upload', formData, {
-        headers: { 
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
-      })
+      // Authorization comes from the request interceptor. Content-Type is left
+      // to the browser so it can generate the multipart boundary.
+      await api.post('/kyc/upload', formData)
       toast.success('Document uploaded successfully. It is now pending review.')
       setFile(null)
       setFullName('')
       fetchProfile()
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Failed to upload document')
+      toast.error(errorMessage(err, 'Failed to upload document'))
     } finally {
       setUploading(false)
     }
@@ -73,17 +68,15 @@ export default function Profile() {
     
     setIsUpdatingWallet(true)
     try {
-      const token = localStorage.getItem('token')
-      const res = await axios.put('/api/auth/update-wallet', 
-        { tetherWalletId: newWalletAddress }, 
-        { headers: { Authorization: `Bearer ${token}` } }
+      const res = await api.put('/auth/update-wallet', 
+        { tetherWalletId: newWalletAddress }
       )
       
       setProfile(prev => ({ ...prev, tetherWalletId: res.data.tetherWalletId }))
       setIsEditingWallet(false)
       toast.success('Wallet address updated successfully')
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'Failed to update wallet address')
+      toast.error(errorMessage(err, 'Failed to update wallet address'))
     } finally {
       setIsUpdatingWallet(false)
     }

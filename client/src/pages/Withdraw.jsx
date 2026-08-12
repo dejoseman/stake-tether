@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api, { errorMessage } from '../api/client'
 import toast from 'react-hot-toast'
 
 export default function Withdraw() {
@@ -11,8 +11,7 @@ export default function Withdraw() {
   useEffect(() => {
     const fetchSettings = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/settings', { headers: { Authorization: `Bearer ${token}` } })
+        const res = await api.get('/settings')
         if (res.data?.cryptoNetworks?.length > 0) {
           setNetworks(res.data.cryptoNetworks)
           setNetwork(res.data.cryptoNetworks[0].name)
@@ -26,16 +25,14 @@ export default function Withdraw() {
     e.preventDefault()
 
     try {
-      const token = localStorage.getItem('token')
-      await axios.post('/api/transactions/withdraw', 
-        { amount: Number(amount), address, network },
-        { headers: { Authorization: `Bearer ${token}` } }
+      await api.post('/transactions/withdraw', 
+        { amount: Number(amount), address, network }
       )
       toast.success(`Withdrawal of ${amount} USDt initiated to ${address}.`)
       setAmount('')
       setAddress('')
     } catch (err) {
-      toast.error(err.response?.data?.msg || 'An error occurred.')
+      toast.error(errorMessage(err, 'An error occurred.'))
     }
   }
 

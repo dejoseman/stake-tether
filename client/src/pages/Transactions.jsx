@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/client'
 import { FileSearch } from 'lucide-react'
 
 export default function Transactions() {
@@ -8,10 +8,7 @@ export default function Transactions() {
   useEffect(() => {
     const fetchTransactions = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/transactions', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const res = await api.get('/transactions')
         setTransactions(res.data)
       } catch (err) {
         console.error(err)

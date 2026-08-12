@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+const getDecimal = (v) => (v !== null && typeof v !== 'undefined' ? parseFloat(v.toString()) : v);
+
 const stakingPlanSchema = new mongoose.Schema({
   name: {
     type: String,
@@ -7,12 +9,14 @@ const stakingPlanSchema = new mongoose.Schema({
     unique: true,
   },
   min: {
-    type: Number,
+    type: mongoose.Schema.Types.Decimal128,
     required: true,
+    get: getDecimal,
   },
   max: {
-    type: Number,
+    type: mongoose.Schema.Types.Decimal128,
     required: true,
+    get: getDecimal,
   },
   durationHours: {
     type: Number,
@@ -28,6 +32,8 @@ const stakingPlanSchema = new mongoose.Schema({
   },
 }, {
   timestamps: true,
+  toJSON: { getters: true },
+  toObject: { getters: true },
 });
 
 const StakingPlan = mongoose.model('StakingPlan', stakingPlanSchema);

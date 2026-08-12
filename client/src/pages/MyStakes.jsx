@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api from '../api/client'
 import toast from 'react-hot-toast'
 import { TrendingUp, CheckCircle } from 'lucide-react'
 import CountdownTimer from '../components/CountdownTimer'
@@ -11,10 +11,7 @@ export default function MyStakes() {
   useEffect(() => {
     const fetchStakes = async () => {
       try {
-        const token = localStorage.getItem('token')
-        const res = await axios.get('/api/stakes/my-stakes', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
+        const res = await api.get('/stakes/my-stakes')
         setStakes(res.data)
       } catch (err) {
         toast.error('Failed to load stakes')

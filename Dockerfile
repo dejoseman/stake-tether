@@ -1,27 +1,49 @@
-# Stage 1: Build the React Frontend
-FROM node:18-alpine AS frontend-builder
+# syntax=docker/dockerfile:1
+
+# ---- Stage 1: build the React frontend -------------------------------------
+# Node 18 reached end of life in April 2025 and no longer receives security
+# patches.
+FROM node:22-alpine AS frontend-builder
 WORKDIR /app/client
-COPY client/package*.json ./
-RUN npm install
+
+# npm ci installs exactly what the lockfile specifies and fails if the lockfile
+# is out of sync — npm install would silently drift.
+COPY client/package.json client/package-lock.json ./
+RUN npm ci
+
 COPY client/ ./
 RUN npm run build
 
-# Stage 2: Setup the Node Backend
-FROM node:18-alpine
+# ---- Stage 2: backend runtime ----------------------------------------------
+FROM node:22-alpine
 WORKDIR /app
 
-# Copy backend dependencies
-COPY package*.json ./
-RUN npm install --production
+ENV NODE_ENV=production
 
-# Copy backend source code
-COPY . .
+# dumb-init reaps zombies and forwards SIGTERM to node, so the graceful
+# shutdown handler in server.js actually fires on container stop.
+RUN apk add --no-cache dumb-init
 
-# Copy built frontend from Stage 1
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev && npm cache clean --force
+
+COPY backend/ ./backend/
+COPY server.js ./
 COPY --from=frontend-builder /app/client/dist ./client/dist
 
-# Expose the port the app runs on
+# KYC documents. Mount a volume here — the container filesystem is ephemeral,
+# so without one every redeploy destroys identity documents that have already
+# been reviewed, while kycStatus stays 'verified' in the database.
+RUN mkdir -p /app/uploads && chown -R node:node /app
+VOLUME ["/app/uploads"]
+
+# Drop root. The original image ran the whole application as uid 0.
+USER node
+
 EXPOSE 3000
 
-# Start the Node server
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "require('http').get('http://127.0.0.1:3000/api/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"
+
+ENTRYPOINT ["dumb-init", "--"]
 CMD ["node", "server.js"]

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import api, { errorMessage } from '../api/client'
 import toast from 'react-hot-toast'
 import { ShieldAlert, CheckCircle2 } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
@@ -22,7 +22,7 @@ export default function Stake() {
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const res = await axios.get('/api/stakes/plans')
+        const res = await api.get('/stakes/plans')
         const plansWithStyles = res.data.map((plan, index) => ({
           ...plan,
           color: UI_STYLES[index % UI_STYLES.length].color,
@@ -52,16 +52,15 @@ export default function Stake() {
 
     setIsSubmitting(true)
     try {
-      const token = localStorage.getItem('token')
-      await axios.post('/api/stakes/purchase', {
+      await api.post('/stakes/purchase', {
         planName: selectedPlan.name,
         amount: Number(amount)
-      }, { headers: { Authorization: `Bearer ${token}` } })
+      })
       
       toast.success(`Successfully staked $${amount} on the ${selectedPlan.name}!`)
       setAmount('')
     } catch (err) {
-      const errorMsg = err.response?.data?.msg || 'Failed to purchase stake'
+      const errorMsg = errorMessage(err, 'Failed to purchase stake')
       
       if (errorMsg === 'Insufficient balance' || errorMsg.toLowerCase().includes('insufficient balance')) {
         toast.error('Insufficient balance. Please deposit funds first.')
