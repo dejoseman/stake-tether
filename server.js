@@ -37,11 +37,11 @@ app.use(helmet({
     directives: {
       defaultSrc: ["'self'"],
       // React writes inline style attributes, which CSP treats as inline styles.
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.smartsuppchat.com", "https://*.smartsupp.com"],
       imgSrc: ["'self'", 'data:', 'https:'],
-      fontSrc: ["'self'", 'data:'],
-      connectSrc: ["'self'"],
+      fontSrc: ["'self'", 'data:', "https://fonts.gstatic.com"],
+      connectSrc: ["'self'", "https://*.smartsuppchat.com", "https://*.smartsupp.com", "wss://*.smartsuppchat.com", "wss://*.smartsupp.com"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
