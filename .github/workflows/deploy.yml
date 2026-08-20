@@ -1,10 +1,13 @@
 name: CI/CD Pipeline
 
 on:
+  # This repository's default branch is master. While these triggers said
+  # 'main', the pipeline never ran on any push or PR — which is why a broken
+  # test suite and a 500 on stake approval both reached production unnoticed.
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   build-and-test:

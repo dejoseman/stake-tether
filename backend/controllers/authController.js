@@ -305,7 +305,9 @@ const changePassword = async (req, res) => {
   const user = await User.findById(req.user._id).select('+password');
 
   if (!user || !(await user.matchPassword(currentPassword))) {
-    return res.status(401).json({ msg: 'Current password is incorrect' });
+    // 403, not 401: this is a re-auth failure inside an authenticated
+    // session. A 401 would log the user out for a single typo.
+    return res.status(403).json({ msg: 'Current password is incorrect' });
   }
 
   user.password = newPassword;

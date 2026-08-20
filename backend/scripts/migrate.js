@@ -76,7 +76,7 @@ step('Backfill Staking.principal', async () => {
   if (APPLY && count) {
     // For compounding stakes that have already grown, `amount` is the best
     // available approximation of the original principal.
-    await Staking.updateMany(filter, [{ $set: { principal: '$amount' } }]);
+    await Staking.updateMany(filter, [{ $set: { principal: '$amount' } }], { updatePipeline: true });
   }
   return `${count} stake(s)`;
 });
@@ -167,10 +167,10 @@ step('Migrate monetary fields to Decimal128', async () => {
           dailyWithdrawalLimit: { $toDecimal: { $ifNull: ["$dailyWithdrawalLimit", 1000] } },
           referralRewards: { $toDecimal: { $ifNull: ["$referralRewards", 0] } }
       } }
-    ]);
+    ], { updatePipeline: true });
     await Transaction.updateMany({}, [
       { $set: { amount: { $toDecimal: "$amount" } } }
-    ]);
+    ], { updatePipeline: true });
     await Staking.updateMany({}, [
       { $set: { 
           amount: { $toDecimal: "$amount" },
@@ -178,11 +178,11 @@ step('Migrate monetary fields to Decimal128', async () => {
           accruedRewards: { $toDecimal: { $ifNull: ["$accruedRewards", 0] } },
           payoutAmount: { $cond: { if: { $eq: ["$payoutAmount", null] }, then: null, else: { $toDecimal: "$payoutAmount" } } }
       } }
-    ]);
+    ], { updatePipeline: true });
     const StakingPlan = require('../models/StakingPlan');
     await StakingPlan.updateMany({}, [
       { $set: { min: { $toDecimal: "$min" }, max: { $toDecimal: "$max" } } }
-    ]);
+    ], { updatePipeline: true });
   }
   return 'User, Transaction, Staking, StakingPlan fields converted';
 });

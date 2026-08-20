@@ -122,10 +122,16 @@ const sendEmail = async (options) => {
 
 /**
  * Send an email specifically to the admin.
+ *
+ * The recipient is env-driven. It was briefly hardcoded to a gmail.com address,
+ * which silently redirected every admin alert — new deposits, withdrawals, KYC
+ * submissions and registrations — away from the configured support inbox.
+ * ADMIN_EMAIL is documented in .env.example and is the address the verified
+ * sending domain actually delivers to.
  */
 const sendAdminAlert = async (subject, message) => {
   return sendEmail({
-    email: 'generatingpro.support@gmail.com',
+    email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
     subject,
     message,
   });

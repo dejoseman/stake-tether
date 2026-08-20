@@ -142,7 +142,9 @@ router.post('/pin', async (req, res) => {
    */
   const adminUser = await User.findById(req.user._id).select('+password +adminPin');
   if (!currentPassword || !(await adminUser.matchPassword(currentPassword))) {
-    return res.status(401).json({ msg: 'Your account password is required to change the admin PIN' });
+    // 403: the session is fine, the re-auth failed. A 401 would trip the
+    // client's session-expiry interceptor and log the admin out.
+    return res.status(403).json({ msg: 'Your account password is required to change the admin PIN' });
   }
 
   const salt = await bcrypt.genSalt(12);
@@ -530,7 +532,11 @@ router.put('/stakes/:id/approve', requireAdminPin, async (req, res) => {
         },
       },
     }],
-    { new: true }
+    // Mongoose 9 no longer infers an aggregation-pipeline update from an array
+    // argument — without updatePipeline it throws 'Cannot pass an array to
+    // query updates', which surfaced to the admin as a 500 'Server error'
+    // on every stake approval.
+    { new: true, updatePipeline: true }
   );
 
   if (!stake) {
