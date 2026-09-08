@@ -45,19 +45,13 @@ app.use(helmet({
       // and therefore inherit this policy, so the widget's own assets have to be
       // allowed here rather than in a frame-scoped policy.
       // React writes inline style attributes, which CSP treats as inline styles.
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://*.smartsuppcdn.com"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.smartsuppchat.com", "https://*.smartsupp.com", "https://*.smartsuppcdn.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://*.tawk.to"],
       imgSrc: ["'self'", 'data:', 'https:'],
-      fontSrc: ["'self'", 'data:', "https://fonts.gstatic.com", "https://*.smartsuppcdn.com"],
-      // cdn.jsdelivr.net serves only the emoji-mart dataset for the chat's emoji
-      // picker. Drop it if you would rather not allow a general-purpose CDN; the
-      // chat still works, the emoji picker just stays empty.
-      connectSrc: ["'self'", "https://*.smartsuppchat.com", "https://*.smartsupp.com", "https://*.smartsuppcdn.com", "wss://*.smartsuppchat.com", "wss://*.smartsupp.com", "wss://*.smartsuppcdn.com", "https://cdn.jsdelivr.net"],
-      // The widget's iframes are about:blank today, so 'self' covers them; these
-      // hosts are listed so a future src-based iframe does not break the widget.
-      frameSrc: ["'self'", "https://*.smartsuppchat.com", "https://*.smartsupp.com", "https://*.smartsuppcdn.com"],
-      // New-message notification sound.
-      mediaSrc: ["'self'", 'data:', "https://*.smartsuppcdn.com", "https://*.smartsuppchat.com"],
+      fontSrc: ["'self'", 'data:', "https://fonts.gstatic.com", "https://*.tawk.to"],
+      connectSrc: ["'self'", "https://*.tawk.to", "wss://*.tawk.to"],
+      frameSrc: ["'self'", "https://*.tawk.to"],
+      mediaSrc: ["'self'", 'data:', "https://*.tawk.to"],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
