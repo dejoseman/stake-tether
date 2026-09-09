@@ -88,7 +88,7 @@ const registerUser = async (req, res) => {
   });
 
   sendEmail({
-    email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
+    email: process.env.ADMIN_EMAIL || 'generatingpro.support@gmail.com',
     subject: `New User Signup: ${user.username}`,
     message: `A new user has registered on GeneratingPro.\n\n<strong>Username:</strong> ${user.username}\n<strong>Email:</strong> ${user.email}\n<strong>Country:</strong> ${user.country || 'Not provided'}\n<strong>Wallet ID:</strong> ${user.tetherWalletId || 'Not provided'}\n\nPlease review their account in the Admin Panel.`,
   });
