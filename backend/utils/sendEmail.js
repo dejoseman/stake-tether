@@ -131,7 +131,7 @@ const sendEmail = async (options) => {
  */
 const sendAdminAlert = async (subject, message) => {
   return sendEmail({
-    email: process.env.ADMIN_EMAIL || 'support@generatingpro.com',
+    email: process.env.ADMIN_EMAIL || 'generatingpro.support@gmail.com',
     subject,
     message,
   });
