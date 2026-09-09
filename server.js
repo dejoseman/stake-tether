@@ -36,22 +36,15 @@ app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      // Smartsupp spans three hosts, not one: loader.js and the account config
-      // come from *.smartsuppchat.com, but the widget bundle itself (manifest,
-      // JS chunks, CSS, fonts) is served from *.smartsuppcdn.com. Allowing only
-      // the first two lets the loader run and then silently stalls when it
-      // fetches https://widget-v3.smartsuppcdn.com/manifest.json — the chat
-      // button never renders. Both of the widget's iframes are srcdoc/about:blank
-      // and therefore inherit this policy, so the widget's own assets have to be
-      // allowed here rather than in a frame-scoped policy.
       // React writes inline style attributes, which CSP treats as inline styles.
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://*.tawk.to"],
       scriptSrc: ["'self'", "'unsafe-inline'", "https://*.tawk.to"],
       imgSrc: ["'self'", 'data:', 'https:'],
       fontSrc: ["'self'", 'data:', "https://fonts.gstatic.com", "https://*.tawk.to"],
       connectSrc: ["'self'", "https://*.tawk.to", "wss://*.tawk.to"],
       frameSrc: ["'self'", "https://*.tawk.to"],
       mediaSrc: ["'self'", 'data:', "https://*.tawk.to"],
+      workerSrc: ["'self'", 'blob:'],
       objectSrc: ["'none'"],
       frameAncestors: ["'none'"],
       baseUri: ["'self'"],
