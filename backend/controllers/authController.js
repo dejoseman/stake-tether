@@ -7,8 +7,8 @@ const sendEmail = require('../utils/sendEmail');
 const { sendAdminAlert } = require('../utils/sendEmail');
 
 // Lock an account for 15 minutes after this many consecutive failures.
-const MAX_FAILED_ATTEMPTS = 8;
-const LOCKOUT_MS = 15 * 60 * 1000;
+const MAX_FAILED_ATTEMPTS = 5;
+const LOCKOUT_MS = 30 * 60 * 1000;  // 30 minutes (doubled from 15)
 
 /**
  * Mint a JWT.
@@ -34,6 +34,30 @@ const registerUser = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res.status(400).json({ errors: errors.array() });
+  }
+
+  // Honeypot field — invisible to real users but filled by bots.
+  // If it has a value, silently reject the registration with a fake success
+  // so the bot thinks it worked and does not try harder.
+  if (req.body.website) {
+    return res.status(201).json({
+      _id: 'ok',
+      username: req.body.username,
+      email: req.body.email,
+      token: 'ok',
+    });
+  }
+
+  // Timing trap — bots fill forms instantly. Reject registrations that arrive
+  // less than 3 seconds after the form was rendered (sent as a hidden field).
+  const formLoadedAt = Number(req.body._loaded);
+  if (formLoadedAt && Date.now() - formLoadedAt < 3000) {
+    return res.status(201).json({
+      _id: 'ok',
+      username: req.body.username,
+      email: req.body.email,
+      token: 'ok',
+    });
   }
 
   const { username, email, password, referralCode, country, tetherWalletId } = req.body;
@@ -142,7 +166,7 @@ const loginUser = async (req, res) => {
       // A burst of failures against one account is worth knowing about.
       sendAdminAlert(
         `Account temporarily locked: ${user.username}`,
-        `${MAX_FAILED_ATTEMPTS} consecutive failed login attempts for <strong>${user.username}</strong> (${user.email}).\n\n<strong>IP:</strong> ${req.ip}\n<strong>Time:</strong> ${new Date().toISOString()}\n\nThe account is locked for 15 minutes.`
+        `${MAX_FAILED_ATTEMPTS} consecutive failed login attempts for <strong>${user.username}</strong> (${user.email}).\n\n<strong>IP:</strong> ${req.ip}\n<strong>Time:</strong> ${new Date().toISOString()}\n\nThe account is locked for 30 minutes.`
       );
     }
 

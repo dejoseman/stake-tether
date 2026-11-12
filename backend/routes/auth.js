@@ -25,7 +25,7 @@ const { validationResult } = require('express-validator');
  */
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 10,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 5,
   skipSuccessfulRequests: true,
   standardHeaders: true,
   legacyHeaders: false,
@@ -35,10 +35,24 @@ const authLimiter = rateLimit({
 // Password reset emails are an outbound-spam vector, so throttle harder.
 const resetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 5,
   standardHeaders: true,
   legacyHeaders: false,
   message: { msg: 'Too many password reset requests. Please try again later.' },
+});
+
+/**
+ * Registration-specific rate limiter — much tighter than the general auth
+ * limiter. The bot wave from 2026-11-12 shows that 10 per 15 minutes is too
+ * generous for account creation. 5 registrations per hour per IP is more than
+ * any human needs.
+ */
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: process.env.NODE_ENV === 'test' ? 1000 : 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { msg: 'Too many registration attempts from this IP. Please try again later.' },
 });
 
 const passwordRules = (field = 'password') => check(
@@ -51,7 +65,7 @@ const passwordRules = (field = 'password') => check(
 
 router.post(
   '/register',
-  authLimiter,
+  registerLimiter,
   [
     check('username', 'Username is required')
       .trim().notEmpty()

@@ -40,6 +40,10 @@ export default function Signup() {
     tetherWalletId: '',
     referralCode: searchParams.get('ref') || '' 
   })
+  // Honeypot — invisible to real users, filled by bots.
+  const [honeypot, setHoneypot] = useState('')
+  // Timing trap — record when the form was loaded.
+  const [loadedAt] = useState(() => Date.now())
   const [countrySearch, setCountrySearch] = useState('')
   const [showCountryDropdown, setShowCountryDropdown] = useState(false)
   const countryRef = useRef(null)
@@ -76,7 +80,11 @@ export default function Signup() {
     }
 
     try {
-      await api.post('/auth/register', formData)
+      await api.post('/auth/register', {
+        ...formData,
+        website: honeypot,     // honeypot field
+        _loaded: loadedAt,     // timing trap
+      })
       toast.success('Account created successfully! Please log in.')
       navigate('/login')
     } catch (err) {
@@ -103,6 +111,20 @@ export default function Signup() {
           <h1 className="auth-card__title">Create an account</h1>
           
           <form onSubmit={handleSubmit}>
+            {/* Honeypot field — hidden from real users, traps bots */}
+            <div style={{ position: 'absolute', left: '-9999px', opacity: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
+              <label htmlFor="website">Website</label>
+              <input
+                type="text"
+                id="website"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={honeypot}
+                onChange={(e) => setHoneypot(e.target.value)}
+              />
+            </div>
+
             <div className="form-group">
               <label htmlFor="username">Username*</label>
               <input
